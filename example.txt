@@ -26,10 +26,10 @@ e2 = '0101'
 e3 = '11111100110101'
 e4 = '111111001'
 e5 = '1111000010001010101010'
-print(e1, 'is', 'valid!' if a1.is_entry_valid(e1) else 'not valid!\n')
-print(e2, 'is', 'valid!' if a1.is_entry_valid(e2) else 'not valid!\n')
-print(e3, 'is', 'valid!' if a1.is_entry_valid(e3) else 'not valid!\n')
-print(e4, 'is', 'valid!' if a1.is_entry_valid(e4) else 'not valid!\n')
-print(e5, 'is', 'valid!' if a1.is_entry_valid(e5) else 'not valid!\n')
+print(e1, 'is', 'valid!' if a1.is_input_valid(e1) else 'not valid!\n')
+print(e2, 'is', 'valid!' if a1.is_input_valid(e2) else 'not valid!\n')
+print(e3, 'is', 'valid!' if a1.is_input_valid(e3) else 'not valid!\n')
+print(e4, 'is', 'valid!' if a1.is_input_valid(e4) else 'not valid!\n')
+print(e5, 'is', 'valid!' if a1.is_input_valid(e5) else 'not valid!\n')
 
 */
