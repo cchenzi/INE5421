@@ -18,10 +18,10 @@ class AFD:
     def reset_init_state(self):
         self.current_state = self.init_state
 
-    def is_entry_valid(self, entry):
+    def is_input_valid(self, input):
         self.reset_init_state()
-        print('\nStarting to check if', entry, 'is valid...')
-        for x in entry:
+        print('\nStarting to check if', input, 'is valid...')
+        for x in input:
             self.make_transition(x)
             if self.current_state == self.dead_state:
                 break
