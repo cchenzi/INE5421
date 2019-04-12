@@ -1,0 +1,35 @@
+
+
+/*
+
+# states = {'q0', 'q1', 'q2'}
+# alphabet = ['a', 'b']
+# final_states = ['q2']
+# transitions = {'q0': {'a': 'q1', 'b': 'q0'}, 'q1': {'a': 'q2', 'b': 'q1'}, 'q2': {'a': '', 'b': ''}}
+
+states = ['q1', 'q0', 'q01', 'q010', 'q0101']
+alphabet = ['0', '1']
+final_states = ['q0101']
+transitions = {'q1': {'0': 'q0', '1': 'q1'}, 'q0': {'0': 'q0', '1': 'q01'}, 'q01': {'0': 'q010', '1': 'q1'}, 'q010': {'0': 'q0', '1': 'q0101'}, 'q0101': {'0': 'q0101', '1': 'q0101' },}
+init_state = 'q1'
+
+# a1 = AFD(states, alphabet, 'q0', final_states, transitions)
+a1 = AFD(states, alphabet, init_state, final_states, transitions)
+
+# e1 = 'bbabbba'
+# e2 = 'ab'
+# e3 = 'a'
+# e4 = 'aa'
+# e5 = 'bbabbaa'
+e1 = '0'
+e2 = '0101'
+e3 = '11111100110101'
+e4 = '111111001'
+e5 = '1111000010001010101010'
+print(e1, 'is', 'valid!' if a1.is_entry_valid(e1) else 'not valid!\n')
+print(e2, 'is', 'valid!' if a1.is_entry_valid(e2) else 'not valid!\n')
+print(e3, 'is', 'valid!' if a1.is_entry_valid(e3) else 'not valid!\n')
+print(e4, 'is', 'valid!' if a1.is_entry_valid(e4) else 'not valid!\n')
+print(e5, 'is', 'valid!' if a1.is_entry_valid(e5) else 'not valid!\n')
+
+*/
