@@ -1,5 +1,5 @@
 import copy
-class AFD:
+class DFA:
     def __init__(self, states, alphabet, init_state, final_states, transitions):
         self.states = states
         self.alphabet = alphabet
