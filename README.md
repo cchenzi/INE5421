@@ -13,9 +13,9 @@ O objetivo deste trabalho é a implementação dos algoritmos relacionados a man
 Elaborar uma aplicação, com interface gráfica para facilitar a iteração, para manipularAutômatos Finitos, Gramáticas Regulares, Expressões Regulares e Gramáticas Livres deContexto e Autômatos de Pilha. A aplicação deve suportar:
 
     (a) Leitura, gravação e edição de AF, GR e ER.
-    (b) Conversão de AFND (com e sem ε) para AFD.
-    (c) Conversão de AFD para GR e de GR para AFND.
-    (d) Reconhecimento de sentenças em AF.
+    (b) Conversão de AFND (com e sem ε) para AFD. 
+    (✓) Conversão de AFD para GR e de GR para AFND.
+    (✓) Reconhecimento de sentenças em AF.
     (e) Minimização de AFD.
     (f) União e interseção de AFD.
     (g) Conversão de ER para AFD (usando o algoritmo baseado em árvore sintática - LivroAho - seção 3.9).
