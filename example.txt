@@ -32,4 +32,16 @@ print(e3, 'is', 'valid!' if a1.is_input_valid(e3) else 'not valid!\n')
 print(e4, 'is', 'valid!' if a1.is_input_valid(e4) else 'not valid!\n')
 print(e5, 'is', 'valid!' if a1.is_input_valid(e5) else 'not valid!\n')
 
-*/
+
+
+ex = 
+gr = {'S': ['aA', 'bB', 'b'], 'A': ['aS'], 'B': ['bB', 'b']}
+ab = ['a', 'b']
+nt = ['S', 'A', 'B']
+
+states = ['S', 'A', 'B', 'C']
+alphabet = ['a', 'b']
+init_state = 'S'
+final_states = ['A']
+tr = {'S': {'a': 'A', 'b': 'B'}, 'A': {'a': 'S', 'b': 'C'}, 'B': {'a': 'C', 'b': 'S'}, 'C': {'a': 'B', 'b': 'A'}}
+
