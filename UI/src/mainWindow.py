@@ -7,9 +7,20 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtWidgets
+from UI.src.newFADialog import Ui_NewFADialog
 
 
 class Ui_MainWindow(object):
+    # Added constructor (don't change!!!)
+    def __init__(self):
+        self.window = QtWidgets.QMainWindow()
+        self.setupUi(self.window)
+        self.connectSignals()
+        self.window.show()
+    # end of constructor
+
+    ##########################################################################################
+    # QtDesigner auto generated code
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(320, 246)
@@ -63,11 +74,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
-        # ADDED (Don't remove!!!)
-        self.connectSignals()
-
-    # end setupUI
-
+    # QtDesigner auto generated code
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -80,11 +87,13 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionLoad.setText(_translate("MainWindow", "Load"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+    # end from QtDesigner auto-generated code
 
 
-    # connect all actions to it's respective signals
+    ##########################################################################################
+    # connect all actions to it's respective signals (ADDED)
     def connectSignals(self):
-        self.pushButton_fa.clicked.connect(self.createFAWindow)
+        self.pushButton_fa.clicked.connect(self.createNewFADialog)
         self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
         self.pushButton_rg.clicked.connect(self.createRGWindow)
@@ -92,11 +101,10 @@ class Ui_MainWindow(object):
         self.actionAbout.triggered.connect(self.showAbout)
         self.actionLoad.triggered.connect(self.createLoadFileWindow)
 
-
     # SIGNAL FUNCTION HANDLERS
     # Creates a Finite Automaton manipulation window
-    def createFAWindow(self):
-        print("Finite Automaton")
+    def createNewFADialog(self):
+        self.newFaDialog = Ui_NewFADialog()
 
     # Creates a Pushdown Automaton manipulation window
     def createPAWindow(self):
@@ -120,7 +128,6 @@ class Ui_MainWindow(object):
 
     # Creates the LoadFile window
     def createLoadFileWindow(self):
-        print("Load file")
         self.fileDialog = QtWidgets.QFileDialog()
         self.fileDialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
         self.fileDialog.AcceptMode(QtWidgets.QFileDialog.AcceptOpen)
@@ -132,4 +139,5 @@ class Ui_MainWindow(object):
     # opens a valid file and redirects it to the right path
     def loadFile(self, filename):
         print(filename)
-        # ver sequencia de operacoes necessarias ate a restauracao do objeto salvo
+        # IMPLEMENT
+        # Definir os passos necessarios para abrir e restaurar um arquivo salvo
