@@ -1,2 +1,5 @@
 # ignore the pycache folder
 /UI/src/__pycache__/
+
+#vscode
+.vscode/
