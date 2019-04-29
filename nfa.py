@@ -1,3 +1,5 @@
+from dfa import DFA
+
 class NFA:
     def __init__(self, states, alphabet, init_state, final_states,
             transitions, has_epsilon):
@@ -60,8 +62,92 @@ class NFA:
             newdd[k] = list(set([item for sublist in newdd[k] for item in sublist]))
         return newdd
 
-    #terminar
+    def minimize(self):
+        self.discard_dead()
+        self.discard_unreachable()
+        self.determinize_epsilon()
+
+    
+    def discard_dead(self):
+        alive_states = []
+        def recursive_is_alive(current_state):
+            for state in self.states:
+                if state not in alive_states and current_state in self.transitions[state].values():
+                    alive_states.append(current_state)
+                    recursive_is_alive(current_state)
+        for final_state in self.final_states:
+            recursive_is_alive(final_state)
+        self.states = alive_states
+
+    def discard_unreachable(self):
+        reachable_states = []
+        def recursive_get_reachable(state):
+            for transition in self.transitions[state]:
+                if all(transition.values() not in reachable_states):
+                    reachable_states.append(state)
+                    recursive_get_reachable(transition)
+        recursive_get_reachable(self.init_state)
+        self.states = reachable_states
+
     def determinize_epsilon(self):
-        aux = self.epsilon_closure[self.init_state]
+        pass
+
+    def determinize(self):
+        index = 0
         new_states = {}
-        new_states[aux] = self.get_epsilon_transitions(aux)
+        state_queue = [[self.init_state]]
+        new_transitions = {}
+        while bool(state_queue):
+            new_states[f'q{index}'] = state_queue.pop()
+            new_transitions[f'q{index}'] = {}
+            for symbol in self.alphabet:
+                new_transitions[f'q{index}'][symbol] = set()
+            for state in new_states[f'q{index}']:
+                for symbol, new_state in self.transitions[state].items():
+                    new_transitions[f'q{index}'][symbol].update(new_state)
+                    if (bool(new_state)
+                        and not any(set(new_state) == set(nsv) for nsv in new_states.values())
+                        and not any(set(new_state) == set(sq) for sq in state_queue)):
+                        state_queue.append(new_state)
+            index += 1
+        print(new_states)
+        # print(new_transitions)
+        # update states and set final states
+        final_states = set()
+        for state, old_states in new_states.items():
+            if any(os in self.final_states for os in old_states):
+                final_states.add(state)
+            for symbol in self.alphabet:
+                for new_s, old_s in new_states.items():
+                    if new_transitions[state][symbol] == old_s:
+                        new_transitions[state][symbol] = new_s
+        print(new_transitions)
+        print(final_states)
+        states = set()
+        for s in new_states:
+            states.add(s)
+        return DFA(states, self.alphabet, 'q0', final_states, new_transitions)
+
+
+# pega estado inicial
+# transição por a
+# pega o e-fecho do estado-alvo
+
+# checa se o estado já existe
+    # caso não exista, insere na lista
+    # chama a função
+
+if __name__== "__main__":
+    states = ['S', 'A', 'B', 'C', 'X']
+    alphabet = ['a', 'b']
+    final_states = ['S', 'X']
+    transitions = {
+        'S': {'a': {'A'}, 'b': {'C','X'}},
+        'A': {'a': {'B'}, 'b': {'A'}},
+        'B': {'a': {'C','X'}, 'b': {'B'}},
+        'C': {'a': {'A'}, 'b': {'C','X'}},
+        'X': {'a': set(), 'b': set() }
+    }
+    init_state = 'S'
+    a1 = NFA(states, alphabet, init_state, final_states, transitions, False)
+    a1.determinize()
