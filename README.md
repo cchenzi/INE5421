@@ -1,7 +1,20 @@
 # INE5421
 
+<h3 align="center">Universidade Federal de Santa Catarina</h3>
+<h3 align="center">Departamento de Informática</h3>
+<h3 align="center">Ciência da Computação</h3>
+<h3 align="center">Florianópolis, 2019-1</h3>
 
-## Manipulação de Linguagens Regulares e Linguagens Livres de Contexto
+<br></br>
+
+<h2 align="center">Manipulação de Linguagens Regulares e Linguagens Livres de Contexto</h2>
+<br></br>
+
+<p align="right">Alunos: Arthur Pickcius</p>
+<p align="right">Francisco Vicenzi</p>
+<p align="right">João Felipe Uller</p>
+
+
 
 
 ### Objetivo do Trabalho
@@ -10,7 +23,7 @@ O objetivo deste trabalho é a implementação dos algoritmos relacionados a man
 
 ### Definição do Trabalho
 
-Elaborar uma aplicação, com interface gráfica para facilitar a iteração, para manipularAutômatos Finitos, Gramáticas Regulares, Expressões Regulares e Gramáticas Livres deContexto e Autômatos de Pilha. A aplicação deve suportar:
+Elaborar uma aplicação, com interface gráfica para facilitar a iteração, para manipular Autômatos Finitos, Gramáticas Regulares, Expressões Regulares e Gramáticas Livres de Contexto e Autômatos de Pilha. A aplicação deve suportar:
 
     (a) Leitura, gravação e edição de AF, GR e ER.
     (b) Conversão de AFND (com e sem ε) para AFD.
@@ -31,5 +44,20 @@ Elaborar uma aplicação, com interface gráfica para facilitar a iteração, pa
 
 
 ### Geral
-# Para transformação de um objeto UI em seu codigo py
+# MELHORAR AS DESCRIÇÕES
+#### Ferramentas utilizadas
+O presente trabalho foi realizado na linguagem Python, utilizando, para a interface gráfica, a biblioteca Qt. É possível instalá-la utlizando o seguinte comando:
+```
+pip install PySide2
+```
+
+#### Modelagem e Estrutura de Dados
+O programa é orientado a objetos, em que cada modelo estudado (AF, GR, ER) consiste em uma classe. Para construir as transições e produções, utilizamos dicionários e listas.
+
+#### Utilização e exemplos
+O programa apresenta interface bem intuitiva, permitindo a leitura, gravação e edição de AFs, GRs e ERs. Sendo assim, é possível manipular uma instância por vez.
+<br></br>
+Os exemplos apresentados foram retirados das listas de exerícios, nomeados no formato ```<L:lista_E:exercicio_T:letra>```. Para manipulação, basta carregar o arquivo desejado, disponível na pasta ``` examples ```.
+
+#### Para transformação de um objeto UI em seu codigo py
 pyuic5 -o ./UI/src/<name>AUX.py  ./UI/Design/<name>.ui  #depois pega esse arquivo aux gerado e copia a definicao da janela para o arquivo correto
