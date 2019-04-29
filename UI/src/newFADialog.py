@@ -19,6 +19,8 @@ class Ui_NewFADialog(object):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.dialog.close)
 
+        self.nonDetermnstc_chkBox.stateChanged.connect(self.checkNonDeterminism)
+
         self.dialog.show()
     # end of the constructor
 
@@ -27,9 +29,9 @@ class Ui_NewFADialog(object):
     # QtDesigner auto generated code
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(293, 187)
+        Dialog.resize(293, 224)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(50, 140, 171, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(50, 170, 171, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
@@ -40,15 +42,18 @@ class Ui_NewFADialog(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.epsilonT_chkBox = QtWidgets.QCheckBox(Dialog)
-        self.epsilonT_chkBox.setGeometry(QtCore.QRect(40, 90, 201, 31))
+        self.epsilonT_chkBox.setEnabled(False)
+        self.epsilonT_chkBox.setGeometry(QtCore.QRect(40, 120, 201, 31))
         self.epsilonT_chkBox.setObjectName("epsilonT_chkBox")
         self.entry_alphabet_input = QtWidgets.QLineEdit(Dialog)
         self.entry_alphabet_input.setGeometry(QtCore.QRect(70, 50, 151, 25))
         self.entry_alphabet_input.setObjectName("entry_alphabet_input")
+        self.nonDetermnstc_chkBox = QtWidgets.QCheckBox(Dialog)
+        self.nonDetermnstc_chkBox.setGeometry(QtCore.QRect(40, 90, 201, 31))
+        self.nonDetermnstc_chkBox.setObjectName("nonDetermnstc_chkBox")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-
 
     # QtDesigner auto generated code
     def retranslateUi(self, Dialog):
@@ -56,6 +61,7 @@ class Ui_NewFADialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Input Alphabet"))
         self.epsilonT_chkBox.setText(_translate("Dialog", "Enable Epsilon-transitions"))
+        self.nonDetermnstc_chkBox.setText(_translate("Dialog", "Non-Deterministic"))
 
     ##########################################################################################
     # DIALOG BUTTONS FUNCTIONS
@@ -68,7 +74,19 @@ class Ui_NewFADialog(object):
         for i in range(len(alphabet)):
             alphabet[i] = alphabet[i].replace(" ", "")
 
-        if(self.epsilonT_chkBox.isChecked()): alphabet.append("&")
+        if (self.checkNonDeterminism()):
+            if(self.epsilonT_chkBox.isChecked()): alphabet.append("&")
+            nfa = True
+        else:
+            nfa = False
 
         self.dialog.close()
-        self.fa_window = Ui_FAWindow(alphabet)
+        self.fa_window = Ui_FAWindow(alphabet, nfa)
+
+
+    # check if the non-determinism checkBox is checked and enable epsilonT_chkBox if true
+    def checkNonDeterminism(self):
+        bool = self.nonDetermnstc_chkBox.isChecked()
+        self.epsilonT_chkBox.setEnabled(bool)
+
+        return bool
