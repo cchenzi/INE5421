@@ -1,3 +1,5 @@
+from dfa import DFA
+
 class NFA:
     def __init__(self, states, alphabet, init_state, final_states,
             transitions, has_epsilon):
@@ -100,17 +102,8 @@ class NFA:
             new_transitions[f'q{index}'] = {}
             for symbol in self.alphabet:
                 new_transitions[f'q{index}'][symbol] = set()
-            # new_states = {'q0':['q0']}
-            # new_states = {
-            #                   'q0': ['q0']
-            #                   'q1': ['q0','q1']
-            #              }
             for state in new_states[f'q{index}']:
-                # state = 'q0'
-                # self.transitions[state] = {'0':['q0','q1'], '1':[q2]}
                 for symbol, new_state in self.transitions[state].items():
-                    # symbol = '0'
-                    # new_state = ['q0','q1']
                     new_transitions[f'q{index}'][symbol].update(new_state)
                     if (bool(new_state)
                         and not any(set(new_state) == set(nsv) for nsv in new_states.values())
@@ -119,17 +112,21 @@ class NFA:
             index += 1
         print(new_states)
         # print(new_transitions)
-        for state in new_states:
+        # update states and set final states
+        final_states = set()
+        for state, old_states in new_states.items():
+            if any(os in self.final_states for os in old_states):
+                final_states.add(state)
             for symbol in self.alphabet:
                 for new_s, old_s in new_states.items():
                     if new_transitions[state][symbol] == old_s:
                         new_transitions[state][symbol] = new_s
         print(new_transitions)
-
-        self.states = []
+        print(final_states)
+        states = set()
         for s in new_states:
-            self.states.append(s)
-        self.transitions = new_transitions
+            states.add(s)
+        return DFA(states, self.alphabet, 'q0', final_states, new_transitions)
 
 
 # pega estado inicial
