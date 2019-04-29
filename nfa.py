@@ -92,13 +92,15 @@ class NFA:
 
     def determinize(self):
         index = 0
-        new_transitions = {}
-        new_state = None
         new_states = {}
         state_queue = [[self.init_state]]
+        new_transitions = {}
         while bool(state_queue):
             new_states[f'q{index}'] = state_queue.pop()
-            # new_states = {'q0':'q0'}
+            new_transitions[f'q{index}'] = {}
+            for symbol in self.alphabet:
+                new_transitions[f'q{index}'][symbol] = set()
+            # new_states = {'q0':['q0']}
             # new_states = {
             #                   'q0': ['q0']
             #                   'q1': ['q0','q1']
@@ -106,18 +108,23 @@ class NFA:
             for state in new_states[f'q{index}']:
                 # state = 'q0'
                 # self.transitions[state] = {'0':['q0','q1'], '1':[q2]}
-                for t_state, new_state in self.transitions[state].items():
-                    # t_state = '0'
+                for symbol, new_state in self.transitions[state].items():
+                    # symbol = '0'
                     # new_state = ['q0','q1']
-                    for val in new_states.values():
-                        print(f'val: {val}')
-                    print(f'new_state: {new_state}')
+                    new_transitions[f'q{index}'][symbol].update(new_state)
                     if (bool(new_state)
                         and not any(set(new_state) == set(nsv) for nsv in new_states.values())
                         and not any(set(new_state) == set(sq) for sq in state_queue)):
                         state_queue.append(new_state)
             index += 1
         print(new_states)
+        # print(new_transitions)
+        for state in new_states:
+            for symbol in self.alphabet:
+                for new_s, old_s in new_states.items():
+                    if new_transitions[state][symbol] == old_s:
+                        new_transitions[state][symbol] = new_s
+        print(new_transitions)
 
         self.states = []
         for s in new_states:
@@ -138,11 +145,11 @@ if __name__== "__main__":
     alphabet = ['a', 'b']
     final_states = ['S', 'X']
     transitions = {
-        'S': {'a': ['A'], 'b': ['C','X']},
-        'A': {'a': ['B'], 'b': ['A']},
-        'B': {'a': ['C','X'], 'b': ['B']},
-        'C': {'a': ['A'], 'b': ['C','X']},
-        'X': {'a': [], 'b': [] }
+        'S': {'a': {'A'}, 'b': {'C','X'}},
+        'A': {'a': {'B'}, 'b': {'A'}},
+        'B': {'a': {'C','X'}, 'b': {'B'}},
+        'C': {'a': {'A'}, 'b': {'C','X'}},
+        'X': {'a': set(), 'b': set() }
     }
     init_state = 'S'
     a1 = NFA(states, alphabet, init_state, final_states, transitions, False)
