@@ -22,10 +22,10 @@ class NFA:
     def reset_init_state(self):
         self.current_state = self.init_state
 
-    def is_input_valid(self, input):
+    def is_word_input_valid(self, ipt):
         self.reset_init_state()
-        print(f'\nStarting to check if {input} is valid...')
-        for x in input:
+        print(f'\nStarting to check if {word_input} is valid...')
+        for x in ipt:
             self.make_transition(x)
             if self.current_state == self.dead_state:
                 break
