@@ -12,7 +12,7 @@ import fileManipulation
 from nfa import NFA
 from dfa import DFA
 from regulargrammar import RegularGrammar
-#from regularExpression import RegularExpression
+from regularExpression import RegularExpression
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -147,7 +147,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         #elif isinstance(obj, CFGrammar):
 
-        #elif isinstance(obj, RegularExpression):
+        elif isinstance(obj, RegularExpression):
+            print("Regular expression")
 
         else:   # should be unreachable
             print("Deu ruim")
