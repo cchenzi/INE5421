@@ -1,3 +1,5 @@
+from regulargrammar import RegularGrammar
+
 class DFA:
     def __init__(self, states, alphabet, init_state, final_states, transitions):
         self.states = states
@@ -28,11 +30,11 @@ class DFA:
         return True if self.current_state in self.final_states else False
 
     def to_grammar(self):
-        grQ = {k: {} for k in self.states}
+        productions = {k: {} for k in self.states}
         for k, x in self.transitions.items():
             aux = []
             for q, t in x.items():
                 aux.append(q+t)
                 if t in self.final_states: aux.append(q)
-            grQ[k] = aux
-        return grQ
+            productions[k] = aux
+        return RegularGrammar(list(self.transitions.keys()), self.alphabet, productions, self.init_state)

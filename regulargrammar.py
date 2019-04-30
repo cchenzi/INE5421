@@ -1,4 +1,5 @@
 import copy
+from nfa import NFA
 
 
 class RegularGrammar:
@@ -21,4 +22,5 @@ class RegularGrammar:
             nfaD[k] = trD
         nfaD[self.accepted_symbol] = {k: [] for k in self.terminals}
         [y.append('qdead') for x in nfaD.values() for y in x.values() if not y]
-        return nfaD
+        return NFA(list(nfaD.keys()), self.terminals, self.start_symbol,
+                   list(self.accepted_symbol), nfaD, False)

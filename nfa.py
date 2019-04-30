@@ -2,7 +2,7 @@ from dfa import DFA
 
 class NFA:
     def __init__(self, states, alphabet, init_state, final_states,
-            transitions, has_epsilon):
+                 transitions, has_epsilon):
         self.states = states
         self.alphabet = alphabet
         self.final_states = final_states
@@ -23,15 +23,13 @@ class NFA:
     def reset_init_state(self):
         self.current_state = self.init_state
 
-    def is_word_input_valid(self, ipt):
-        self.reset_init_state()
-        print(f'\nStarting to check if {word_input} is valid...')
-        for x in ipt:
-            self.make_transition(x)
-            if self.current_state == self.dead_state:
-                break
-        print(f'End state: {self.current_state}')
-        return True if self.current_state in self.final_states else False
+    def is_word_input_valid(self, word_input):
+        if self.determinized == []:
+            if self.epsilonEnabled:
+                self.determinized = self.determinize_epsilon()
+            else:
+                self.determinized = self.determinize()
+        return self.determinized.is_word_input_valid(word_input)
 
     def compute_epsilon_closure(self):
         for k, tr in self.transitions.items():
@@ -48,32 +46,14 @@ class NFA:
             self.epsilon_closure[k] = list(set(aux))
         print(self.epsilon_closure)
 
-    def get_epsilon_transitions(self, state):
-        newdd = {key: [] for key in self.alphabet}
-        print(self.states)
-        for x in self.states:
-            print('\n\n')
-            print('in: ', x)
-            for letter in self.alphabet:
-                aux = []
-                print('letter: ', letter)
-                print('transitions for x: ', self.transitions[x])
-                for t in self.transitions[x][letter]:
-                    if t != '':
-                        aux.append(self.epsilon_closure[t])
-                flat_list = [item for sublist in aux for item in sublist]
-        for k, x in newdd.items():
-            newdd[k] = list(set([item for sublist in newdd[k] for item in sublist]))
-        return newdd
-
     def minimize(self):
         self.discard_dead()
         self.discard_unreachable()
         self.determinize_epsilon()
 
-    
     def discard_dead(self):
         alive_states = []
+
         def recursive_is_alive(current_state):
             for state in self.states:
                 if state not in alive_states and current_state in self.transitions[state].values():
@@ -85,6 +65,7 @@ class NFA:
 
     def discard_unreachable(self):
         reachable_states = []
+
         def recursive_get_reachable(state):
             for transition in self.transitions[state]:
                 if all(transition.values() not in reachable_states):
