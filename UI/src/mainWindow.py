@@ -7,24 +7,29 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtWidgets
-from UI.src.newFADialog import Ui_NewFADialog
+from UI.src.faWindow import Ui_FAWindow
+import fileManipulation
+from nfa import NFA
+from dfa import DFA
+from regulargrammar import RegularGrammar
+from regularExpression import RegularExpression
 
 
-class Ui_MainWindow(object):
-    # Added constructor (don't change!!!)
+class Ui_MainWindow(QtWidgets.QMainWindow):
+
     def __init__(self):
-        self.window = QtWidgets.QMainWindow()
-        self.setupUi(self.window)
+        super(Ui_MainWindow, self).__init__()
+        self.setupUi()
         self.connectSignals()
-        self.window.show()
-    # end of constructor
+        self.show()
+
 
     ##########################################################################################
     # QtDesigner auto generated code
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(320, 246)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+    def setupUi(self):
+        self.setObjectName("MainWindow")
+        self.resize(320, 246)
+        self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(70, 0, 181, 211))
@@ -52,32 +57,32 @@ class Ui_MainWindow(object):
         self.pushButton_pa = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_pa.setGeometry(QtCore.QRect(0, 180, 181, 31))
         self.pushButton_pa.setObjectName("pushButton_pa")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 320, 22))
         self.menubar.setObjectName("menubar")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        MainWindow.setMenuBar(self.menubar)
-        self.actionLoad = QtWidgets.QAction(MainWindow)
+        self.setMenuBar(self.menubar)
+        self.actionLoad = QtWidgets.QAction(self)
         self.actionLoad.setObjectName("actionLoad")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout = QtWidgets.QAction(self)
         self.actionAbout.setObjectName("actionAbout")
         self.menuHelp.addAction(self.actionAbout)
         self.menuFile.addAction(self.actionLoad)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
 
     # QtDesigner auto generated code
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton_fcg.setText(_translate("MainWindow", "Free-Context Grammar"))
         self.pushButton_re.setText(_translate("MainWindow", "Regular Expression"))
         self.pushButton_rg.setText(_translate("MainWindow", "Regular Grammar"))
@@ -87,24 +92,25 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionLoad.setText(_translate("MainWindow", "Load"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
-    # end from QtDesigner auto-generated code
+    # end of QtDesigner auto-generated code
 
 
     ##########################################################################################
     # connect all actions to it's respective signals (ADDED)
     def connectSignals(self):
-        self.pushButton_fa.clicked.connect(self.createNewFADialog)
+        self.pushButton_fa.clicked.connect(self.createFAWindow)
         self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
-        self.pushButton_rg.clicked.connect(self.createRGWindow)
-        self.pushButton_fcg.clicked.connect(self.createFCGWindow)
+        self.pushButton_rg.clicked.connect(lambda state: self.createGrammarWindow("regular"))
+        self.pushButton_fcg.clicked.connect(lambda state: self.createGrammarWindow("context-free"))
         self.actionAbout.triggered.connect(self.showAbout)
-        self.actionLoad.triggered.connect(self.createLoadFileWindow)
+        self.actionLoad.triggered.connect(self.createFileDialog)
+
 
     # SIGNAL FUNCTION HANDLERS
     # Creates a Finite Automaton manipulation window
-    def createNewFADialog(self):
-        self.newFaDialog = Ui_NewFADialog()
+    def createFAWindow(self):
+        self.faWindow = Ui_FAWindow(self)
 
     # Creates a Pushdown Automaton manipulation window
     def createPAWindow(self):
@@ -114,30 +120,35 @@ class Ui_MainWindow(object):
     def createREWindow(self):
         print("Regular Expression")
 
-    # Creates a Regular grammar manipulation window
-    def createRGWindow(self):
-        print("Regular Grammar")
-
-    # Creates a Free-Context Grammar manipulation window
-    def createFCGWindow(self):
-        print("Free-Context Grammar")
+    # Creates a grammar manipulation window
+    def createGrammarWindow(self, type):
+        print(type)
 
     # Creates the AboutUs dialog window
     def showAbout(self):
         print("About us")
 
     # Creates the LoadFile window
-    def createLoadFileWindow(self):
-        self.fileDialog = QtWidgets.QFileDialog()
-        self.fileDialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
-        self.fileDialog.AcceptMode(QtWidgets.QFileDialog.AcceptOpen)
-        self.fileDialog.fileSelected.connect(self.loadFile)
-        self.fileDialog.setNameFilter("JSON Files (*.json)")
-        self.fileDialog.show()
+    def createFileDialog(self):
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File","./", "DAT Files (*.dat)")
+        if fileName:
+            self.loadFile(fileName)
 
 
     # opens a valid file and redirects it to the right path
     def loadFile(self, filename):
-        print(filename)
-        # IMPLEMENT
-        # Definir os passos necessarios para abrir e restaurar um arquivo salvo
+        obj = fileManipulation.read_file(filename)
+
+        if isinstance(obj, NFA) or isinstance(obj, DFA):
+            self.faWindow = Ui_FAWindow(self, obj, filename)
+
+        elif isinstance(obj, RegularGrammar):
+            print("Regular grammar")
+
+        #elif isinstance(obj, CFGrammar):
+
+        elif isinstance(obj, RegularExpression):
+            print("Regular expression")
+
+        else:   # should be unreachable
+            print("Deu ruim")

@@ -14,15 +14,12 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <widget class="QTableWidget" name="transition_table">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>10</x>
       <y>10</y>
-      <width>481</width>
+      <width>621</width>
       <height>441</height>
      </rect>
     </property>
@@ -54,110 +51,6 @@
      <bool>false</bool>
     </attribute>
    </widget>
-   <widget class="QWidget" name="statesMan_container" native="true">
-    <property name="geometry">
-     <rect>
-      <x>19</x>
-      <y>50</y>
-      <width>111</width>
-      <height>121</height>
-     </rect>
-    </property>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>10</y>
-       <width>51</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>States</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_insertState">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>89</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Insert</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_removeState">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>89</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Remove</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="transMan_container" native="true">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>200</y>
-      <width>111</width>
-      <height>121</height>
-     </rect>
-    </property>
-    <widget class="QPushButton" name="pushButton_removeTransition">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>89</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Remove</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>81</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Transitions</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_insertTransition">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>89</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Insert</string>
-     </property>
-    </widget>
-   </widget>
-   <zorder>transMan_container</zorder>
-   <zorder>statesMan_container</zorder>
-   <zorder>transition_table</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

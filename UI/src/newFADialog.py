@@ -7,58 +7,60 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from UI.src.faWindow import Ui_FAWindow
+from nfa import NFA
+from dfa import DFA
 
 
-class Ui_NewFADialog(object):
+class Ui_NewFADialog(QtWidgets.QDialog):
     # Added constructor (don't change!!!)
-    def __init__(self):
-        self.dialog = QtWidgets.QDialog()
-        self.setupUi(self.dialog)
+    def __init__(self, parent):
+        super(Ui_NewFADialog, self).__init__()
+        self.parent = parent
+        self.setupUi()
 
         self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.dialog.close)
+        self.buttonBox.rejected.connect(self.close)
 
         self.nonDetermnstc_chkBox.stateChanged.connect(self.checkNonDeterminism)
 
-        self.dialog.show()
+        self.show()
     # end of the constructor
 
 
     ##########################################################################################
     # QtDesigner auto generated code
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(293, 224)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
+    def setupUi(self):
+        self.setObjectName("Dialog")
+        self.resize(293, 224)
+        self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setGeometry(QtCore.QRect(50, 170, 171, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.label = QtWidgets.QLabel(Dialog)
+        self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(QtCore.QRect(80, 10, 141, 31))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.epsilonT_chkBox = QtWidgets.QCheckBox(Dialog)
+        self.epsilonT_chkBox = QtWidgets.QCheckBox(self)
         self.epsilonT_chkBox.setEnabled(False)
         self.epsilonT_chkBox.setGeometry(QtCore.QRect(40, 120, 201, 31))
         self.epsilonT_chkBox.setObjectName("epsilonT_chkBox")
-        self.entry_alphabet_input = QtWidgets.QLineEdit(Dialog)
+        self.entry_alphabet_input = QtWidgets.QLineEdit(self)
         self.entry_alphabet_input.setGeometry(QtCore.QRect(70, 50, 151, 25))
         self.entry_alphabet_input.setObjectName("entry_alphabet_input")
-        self.nonDetermnstc_chkBox = QtWidgets.QCheckBox(Dialog)
+        self.nonDetermnstc_chkBox = QtWidgets.QCheckBox(self)
         self.nonDetermnstc_chkBox.setGeometry(QtCore.QRect(40, 90, 201, 31))
         self.nonDetermnstc_chkBox.setObjectName("nonDetermnstc_chkBox")
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     # QtDesigner auto generated code
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Input Alphabet"))
         self.epsilonT_chkBox.setText(_translate("Dialog", "Enable Epsilon-transitions"))
         self.nonDetermnstc_chkBox.setText(_translate("Dialog", "Non-Deterministic"))
@@ -75,13 +77,13 @@ class Ui_NewFADialog(object):
             alphabet[i] = alphabet[i].replace(" ", "")
 
         if (self.checkNonDeterminism()):
-            if(self.epsilonT_chkBox.isChecked()): alphabet.append("&")
-            nfa = True
+            epsilonEnabled = self.epsilonT_chkBox.isChecked()
+            fa = NFA([], alphabet, '', [], {}, epsilonEnabled)
         else:
-            nfa = False
+            fa = DFA([], alphabet, '', [], {})
 
-        self.dialog.close()
-        self.fa_window = Ui_FAWindow(alphabet, nfa)
+        self.close()
+        self.parent.createEditor(fa)
 
 
     # check if the non-determinism checkBox is checked and enable epsilonT_chkBox if true

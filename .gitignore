@@ -1,6 +1,9 @@
 # ignore the pycache folder
-/UI/src/__pycache__/
 __pycache__/
+/UI/src/__pycache__/
 
 #vscode
 .vscode/
+
+# ignore .dat files
+*.dat
