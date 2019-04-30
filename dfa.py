@@ -17,10 +17,10 @@ class DFA:
     def reset_init_state(self):
         self.current_state = self.init_state
 
-    def is_entry_valid(self, entry):
+    def is_word_input_valid(self, word_input):
         self.reset_init_state()
-        print('\nStarting to check if', entry, 'is valid...')
-        for x in entry:
+        print('\nStarting to check if', word_input, 'is valid...')
+        for x in word_input:
             self.make_transition(x)
             if self.current_state == self.dead_state:
                 break
