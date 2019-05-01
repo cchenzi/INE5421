@@ -733,7 +733,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def getTransitionSet(self, stateIndex, alphabetIndex):
         item = self.transition_table.item(stateIndex, alphabetIndex)
         data = (item.text())[1:-1]
-        if (not data == "-"):
+        if (not data == ""):
             return set(data.split(","))
 
         return set()

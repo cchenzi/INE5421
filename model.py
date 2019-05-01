@@ -30,7 +30,7 @@ class NFA:
 
     def compute_epsilon_closure(self):
         for k, tr in self.transitions.items():
-            if '&' in tr:
+            if ('&' in tr) and (tr['&'] != []):
                 aux = []
                 aux.append(k)
                 for state in tr['&']:
@@ -44,7 +44,6 @@ class NFA:
                 self.epsilon_closure[k] = list(set(aux))
             else:
                 self.epsilon_closure[k] = [k]
-        print(self.epsilon_closure)
 
     def minimize(self):
         self.discard_dead()
@@ -76,18 +75,18 @@ class NFA:
 
 
     def determinize(self):
+
         self.compute_epsilon_closure()
-        print('epsilon closure ok')
+        print(f'\n\nepsilon closure: {self.epsilon_closure}')
         index = 0
         new_states = {}
-        state_queue = [self.epsilon_closure[init_state]]
+        state_queue = [self.epsilon_closure[self.init_state]]
         new_transitions = {}
         while bool(state_queue):
             new_states[f'q{index}'] = state_queue.pop()
             new_transitions[f'q{index}'] = {}
-            for symbol in self.alphabet:
-                if symbol != '&':
-                    new_transitions[f'q{index}'][symbol] = set()
+            for symbol_sa in self.alphabet:
+                new_transitions[f'q{index}'][symbol_sa] = set()
             for state in new_states[f'q{index}']:
                 for cls in self.epsilon_closure[state]:
                     for symbol, t_state in self.transitions[cls].items():
@@ -102,8 +101,7 @@ class NFA:
                                     and not any(nt == set(sq) for sq in state_queue)):
                                 state_queue.append(list(nt))
             index += 1
-        print(f'states: {new_states}')
-        # print(new_transitions)
+
         # update states and set final states
         final_states = set()
         for state, old_states in new_states.items():
@@ -113,12 +111,25 @@ class NFA:
                 for new_s, old_s in new_states.items():
                     if new_transitions[state][symbol] == old_s:
                         new_transitions[state][symbol] = list(new_s)
-        print(f'transitions: {new_transitions}')
-        print(f'final states: {final_states}')
-        states = []
-        for s in new_states:
-            states.append(s)
-        return DFA(states, self.alphabet, 'q0', final_states, new_transitions)
+        new_tr = {}
+        aux = []
+        for x in new_states.values():
+         aux.append(str(sorted(x))) 
+        states_dict = dict(zip(aux, new_states.keys()))
+
+        for state, transition in new_transitions.items():
+            new_tr[state] = {}
+            for symbol in transition:
+             aux_tr = sorted(list(new_transitions[state][symbol]))
+             if aux_tr != []:
+              new_tr[state][symbol] = states_dict[str(aux_tr)]
+             else:
+              new_tr[state][symbol] = ''
+
+        print(f'transitions: {new_tr}')
+        print(f'final states: {list(final_states)}')
+        print(f'states: {states}')
+        return DFA(states, self.alphabet, 'q0', list(final_states), new_tr)
 
 
 class DFA:
@@ -177,7 +188,7 @@ class RegularGrammar:
         nt = copy.deepcopy(self.nonterminals)
         nt.append(self.accepted_symbol)
         nfaD = {k: {} for k in nt}
-        for k, x in self.procutions.items():
+        for k, x in self.productions.items():
             trD = {k: [] for k in self.terminals}
             for y in x:
                 trD[y[0]].append(self.accepted_symbol) if y in self.terminals else trD[y[0]].append(y[1])
