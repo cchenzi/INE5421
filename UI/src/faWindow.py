@@ -20,17 +20,18 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         super(Ui_FAWindow, self).__init__()
         self.parent = parent
         self.fileName = filename
-        self.FA = fa
 
         self.setupUi()
         self.connectSignals()
 
         if fa:
             self.createEditor(fa)
+            self.FA = fa
             self.saved = True
             self.faUpdated = True
             self.updateWindowTitle()
         else:
+            self.FA = None
             self.saved = False
             self.opened = False
             self.faUpdated = False
@@ -183,7 +184,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.newStateDialog = None
         self.fileName = None
         self.saved = False
-        self.faUpdated = False
+        self.faUpdated = True
+        self.FA = obj
         self.opened = True
 
         self.updateWindowTitle()
@@ -236,8 +238,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         # insert the transitions
         if self.nfa:
             for i in range(len(obj.states)):
-                for j in range(len(obj.alphabet)):
-                    self.transition_table.item(i, j+3).setText(self.setToString(obj.transitions[obj.states[i]][obj.alphabet[j]]))
+                for j in range(3, self.transition_table.columnCount()):
+                    char = self.transition_table.horizontalHeaderItem(j).text()
+                    self.transition_table.item(i, j).setText(self.setToString(obj.transitions[obj.states[i]][char]))
 
         else:
             for i in range(len(obj.states)):
@@ -310,7 +313,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You don't have states to create a transition!")
             return
 
-        self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet)
+        if self.FA.epsilonEnabled:
+            self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet + ['&'])
+        else:
+            self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet)
 
 
     # Creates a dialog to remove an existing transition from a NFA
@@ -337,9 +343,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         row = selected[0].row()
         state = self.transition_table.item(row, 2).text()
 
-        for i in range(len(self.alphabet)):
+        for i in range(3, self.transition_table.columnCount()):
             conj = self.getTransitionSet(row, i)
-            input = self.alphabet[i]
+            input = self.transition_table.horizontalHeaderItem(i).text()
 
             for t in conj:
                 if t != "":
@@ -373,18 +379,13 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         dialog.entry_input = QtWidgets.QLineEdit(dialog)
         dialog.entry_input.setGeometry(QtCore.QRect(30, 50, 191, 25))
         dialog.buttonBox.accepted.connect(self.fastRun)
-        dialog.buttonBox.rejected.connect(lambda: self.clearRunVariables(dialog))
+        dialog.buttonBox.rejected.connect(dialog.close)
         dialog.setWindowTitle("FastRun_Dialog")
         dialog.label.setText("Input")
         self.fastRunDialog = dialog
 
-        self.temp = None
         self.fastRunDialog.show()
 
-    # close windows/dialogs and destroy temporary variables generated for run proposites
-    def clearRunVariables(self, dialog):
-        self.temp = None
-        dialog.close()
 
     # Creates a simple error dialog
     def createErrorDialog(self, msg):
@@ -424,9 +425,11 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
                 item = QTableWidgetItem("{}")
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 self.transition_table.setItem(new_index, i, item)
+
         else:
             for i in range(3, self.transition_table.columnCount()):
                 combo = QtWidgets.QComboBox()
+                combo.currentIndexChanged.connect(self.markFaModified)
                 self.transition_table.setCellWidget(new_index, i, combo)
 
             self.updateComboBoxes()
@@ -475,7 +478,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         char = dialog.comboBox_Input.currentIndex()
 
         item = self.transition_table.item(source, char+3)
-        conj = self.getTransitionSet(source, char)
+        conj = self.getTransitionSet(source, char+3)
         conj.add(destination)
         data = self.setToString(conj)
         item.setText(data)
@@ -492,9 +495,14 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         i = self.transition_table.selectedItems()[0].row()
         transition = self.comboBox.currentText().split(" -> ")
         element = transition[1]
-        j = self.alphabet.index((transition[0].split(", "))[1][-2])
 
-        conj = self.getTransitionSet(i, j)
+        if self.FA.epsilonEnabled:
+            aux = self.alphabet + ['&']
+            j = aux.index((transition[0].split(", "))[1][-2])
+        else:
+            j = self.alphabet.index((transition[0].split(", "))[1][-2])
+
+        conj = self.getTransitionSet(i, j+3)
         conj.remove(element)
         data = self.setToString(conj)
         self.transition_table.item(i, j+3).setText(data)
@@ -629,29 +637,18 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # INPUT ACTION HANDLERS
     # Creates a dialog to execute a single fast run
     def fastRun(self):
-        if self.nfa:
-            if not(self.temp):
-                if not(self.faUpdated):
-                    self.getFA()
+        if not(self.faUpdated):
+            self.getFA()
 
-                if self.FA.has_epsilon:
-                    self.temp = self.FA.determinize_epsilon()
-                else:
-                    self.temp = self.FA.determinize()
-        else:
-            self.temp = self.FA
-        # end if
-
-        if self.temp.init_state != '':
+        if self.FA.init_state != '':
             entry = self.fastRunDialog.entry_input.text()
-            result = self.temp.is_word_input_valid(entry)
+            result = self.FA.is_word_input_valid(entry)
             if result: str = "Accepted"
             else: str = "Rejected"
             self.createResultDialog(str)
         else:
             self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
-            self.temp = None
-            self.clearRunVariables(self.fastRunDialog)
+            self.fastRunDialog.close()
 
     # creates a simple dialog to present the result for the user
     def createResultDialog(self, result):
@@ -712,10 +709,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # updates the transition sets from the transition table, deleting the removed state
     def updateTransitionSets(self, removeState):
         for i in range(self.transition_table.rowCount()):
-            for j in range(len(self.alphabet)):
+            for j in range(3, self.transition_table.columnCount()):
                 conj = self.getTransitionSet(i, j)
                 conj.discard(removeState)
-                self.transition_table.item(i, j+3).setText(self.setToString(conj))
+                self.transition_table.item(i, j).setText(self.setToString(conj))
 
 
     # return a string that represents the content of a set
@@ -734,7 +731,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # return a set that contains all transitions from a given state and a given input
     def getTransitionSet(self, stateIndex, alphabetIndex):
-        item = self.transition_table.item(stateIndex, alphabetIndex+3)
+        item = self.transition_table.item(stateIndex, alphabetIndex)
         data = (item.text())[1:-1]
         if (not data == "-"):
             return set(data.split(","))
@@ -779,12 +776,13 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         if self.nfa:
             for i in range(len(states)):
                 aux = {}
-                for j in range(len(alphabet)):
-                    aux[alphabet[j]] = self.getTransitionSet(i, j)
+                for j in range(3, self.transition_table.columnCount()):
+                    char = self.transition_table.horizontalHeaderItem(j).text()
+                    aux[char] = self.getTransitionSet(i, j)
 
                 transitions[states[i]] = aux
 
-            return NFA(states, alphabet, init_state, final_states, transitions, self.epsilonEnabled)
+            self.FA = NFA(states, alphabet, init_state, final_states, transitions, self.epsilonEnabled)
 
         else:
             for i in range(len(states)):
@@ -795,8 +793,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
                 transitions[states[i]] = aux
 
             self.FA = DFA(states, alphabet, init_state, final_states, transitions)
-            self.faUpdated = True
-            return self.FA
-
         #end if
+
+        self.faUpdated = True
+        return self.FA
     # end of getFA

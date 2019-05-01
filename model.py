@@ -24,11 +24,8 @@ class NFA:
         self.current_state = self.init_state
 
     def is_word_input_valid(self, word_input):
-        if self.determinized == []:
-            if self.epsilonEnabled:
-                self.determinized = self.determinize_epsilon()
-            else:
-                self.determinized = self.determinize()
+        if not(self.determinized):
+            self.determinized = self.determinize()
         return self.determinized.is_word_input_valid(word_input)
 
     def compute_epsilon_closure(self):
@@ -136,8 +133,11 @@ class DFA:
 
     def make_transition(self, symbol):
         print('Current state before: ', self.current_state, '| Symbol: ', symbol)
-        aux = self.transitions[self.current_state][symbol]
-        self.current_state = self.dead_state if aux == '' else aux
+        if symbol not in list(self.transitions[self.init_state].keys()):
+            self.current_state = self.dead_state
+        else:
+            aux = self.transitions[self.current_state][symbol]
+            self.current_state = self.dead_state if aux == '' else aux
         print('Current state after: ', self.current_state)
 
     def reset_init_state(self):
