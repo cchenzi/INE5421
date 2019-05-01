@@ -11,7 +11,8 @@ from PySide2.QtWidgets import QTableWidgetItem
 from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
 import fileManipulation
-from model import NFA, DFA
+from nfa import NFA
+from dfa import DFA
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):

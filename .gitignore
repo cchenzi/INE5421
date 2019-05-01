@@ -7,6 +7,3 @@ __pycache__/
 
 # ignore .dat files
 *.dat
-
-#pycharm
-.idea

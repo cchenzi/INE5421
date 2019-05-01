@@ -7,7 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from model import NFA, DFA
+from nfa import NFA
+from dfa import DFA
 
 
 class Ui_NewFADialog(QtWidgets.QDialog):
@@ -30,7 +31,8 @@ class Ui_NewFADialog(QtWidgets.QDialog):
     # QtDesigner auto generated code
     def setupUi(self):
         self.setObjectName("Dialog")
-        self.resize(293, 224)        self.buttonBox = QtWidgets.QDialogButtonBox(self)
+        self.resize(293, 224)
+        self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setGeometry(QtCore.QRect(50, 170, 171, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
