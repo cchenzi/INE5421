@@ -7,8 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from nfa import NFA
-from dfa import DFA
+from nfa import NFA, DFA
 
 
 class Ui_NewFADialog(QtWidgets.QDialog):

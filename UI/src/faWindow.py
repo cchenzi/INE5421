@@ -6,40 +6,34 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QTableWidgetItem
 from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
 import fileManipulation
-from nfa import NFA
-from dfa import DFA
+from nfa import NFA, DFA
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):
-    # Constructs an empty window until user defines the FA to be edited
-    def __init__(self, parent):
-        super(Ui_FAWindow, self).__init__()
-        self.parent = parent
-        self.opened = False
-
-        self.setupUi()
-        self.connectSignals()
-
-        self.parent.hide()
-        self.show()
-
     # Constructs the window and the editor based on the FA passed as argument
-    def __init__(self, parent, fa, filename):
+    def __init__(self, parent, fa = None, filename = None):
         super(Ui_FAWindow, self).__init__()
         self.parent = parent
+        self.fileName = filename
+        self.FA = fa
 
         self.setupUi()
         self.connectSignals()
-        self.createEditor(fa)
 
-        self.fileName = filename
-        self.saved = True
-        self.updateWindowTitle()
+        if fa:
+            self.createEditor(fa)
+            self.saved = True
+            self.faUpdated = True
+            self.updateWindowTitle()
+        else:
+            self.saved = False
+            self.opened = False
+            self.faUpdated = False
 
         self.parent.hide()
         self.show()
@@ -177,7 +171,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.file_actionClose.triggered.connect(self.closeEditor)
         self.convert_actionToDFA.triggered.connect(self.convertToDFA)
         self.convert_actionToGramm.triggered.connect(self.convertToGrammar)
-        self.input_actionFastRun.triggered
+        self.input_actionFastRun.triggered.connect(self.createFastRunDialog)
         self.input_actionStep.triggered
         self.input_actionMultipleRun.triggered
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
@@ -189,6 +183,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.newStateDialog = None
         self.fileName = None
         self.saved = False
+        self.faUpdated = False
         self.opened = True
 
         self.updateWindowTitle()
@@ -355,6 +350,39 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.dialog.show()
 
 
+    # Creates fastRun_Dialog
+    def createFastRunDialog(self):
+        if not(self.opened):
+            self.createErrorDialog("You need a valid automaton to run inputs over!")
+            return
+
+        dialog = QtWidgets.QDialog()
+        dialog.resize(253, 137)
+        dialog.buttonBox = QtWidgets.QDialogButtonBox(dialog)
+        dialog.buttonBox.setGeometry(QtCore.QRect(40, 90, 171, 32))
+        dialog.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        dialog.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        dialog.label = QtWidgets.QLabel(dialog)
+        dialog.label.setGeometry(QtCore.QRect(100, 20, 41, 17))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        dialog.label.setFont(font)
+        dialog.entry_input = QtWidgets.QLineEdit(dialog)
+        dialog.entry_input.setGeometry(QtCore.QRect(30, 50, 191, 25))
+        dialog.buttonBox.accepted.connect(self.fastRun)
+        dialog.buttonBox.rejected.connect(lambda: self.clearRunVariables(dialog))
+        dialog.setWindowTitle("FastRun_Dialog")
+        dialog.label.setText("Input")
+        self.fastRunDialog = dialog
+
+        self.temp = None
+        self.fastRunDialog.show()
+
+    # close windows/dialogs and destroy temporary variables generated for run proposites
+    def clearRunVariables(self, dialog):
+        self.temp = None
+        dialog.close()
+
     # Creates a simple error dialog
     def createErrorDialog(self, msg):
         dialog = QtWidgets.QDialog()
@@ -408,6 +436,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.saved = False
             self.updateWindowTitle()
 
+        self.faUpdated = False
+
     # end of insertState
 
 
@@ -431,6 +461,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.saved = False
             self.updateWindowTitle()
 
+        self.faUpdated = False
+
 
     # Insert a new transition in a Non-deterministic FA
     def insertTransition(self):
@@ -445,6 +477,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         data = self.setToString(conj)
         item.setText(data)
 
+        self.faUpdated = False
         if self.saved:
             self.saved = False
             self.updateWindowTitle()
@@ -463,6 +496,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         data = self.setToString(conj)
         self.transition_table.item(i, j+3).setText(data)
 
+        self.faUpdated = False
         if self.saved:
             self.saved = False
             self.updateWindowTitle()
@@ -511,7 +545,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def loadFA(self, fileName):
         obj = fileManipulation.read_file(fileName)
         self.createEditor(obj)
+        self.FA = obj
         self.saved = True
+        self.faUpdated = True
         self.fileName = fileName
 
         self.updateWindowTitle()
@@ -524,7 +560,11 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
         if not(self.saved):
             if self.fileName:
-                fileManipulation.write_file(self.fileName, self.getFA())
+                if self.faUpdated:
+                    fileManipulation.write_file(self.fileName, self.FA)
+                else:
+                    fileManipulation.write_file(self.fileName, self.getFA())
+
                 self.saved = True
                 self.updateWindowTitle()
 
@@ -534,7 +574,11 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # save as
     def createFAFile(self, fileName):
-        fileManipulation.write_file(fileName, self.getFA())
+        if self.faUpdated:
+            fileManipulation.write_file(fileName, self.FA)
+        else:
+            fileManipulation.write_file(fileName, self.getFA())
+
         self.saved = True
         self.fileName = fileName
 
@@ -581,8 +625,45 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     ####################################################################################
     # INPUT ACTION HANDLERS
     # Creates a dialog to execute a single fast run
-    def createFastRunDialog(self):
-        print("Fast run")
+    def fastRun(self):
+        if self.nfa:
+            if not(self.temp):
+                if not(self.faUpdated):
+                    self.getFA()
+
+                if self.FA.has_epsilon:
+                    self.temp = self.FA.determinize_epsilon()
+                else:
+                    self.temp = self.FA.determinize()
+        else:
+            self.temp = self.FA
+        # end if
+
+        if self.temp.init_state != '':
+            entry = self.fastRunDialog.entry_input.text()
+            result = self.temp.is_word_input_valid(entry)
+            if result: str = "Accepted"
+            else: str = "Rejected"
+            self.createResultDialog(str)
+        else:
+            self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
+            self.clearRunVariables(self.fastRunDialog)
+
+    # creates a simple dialog to present the result for the user
+    def createResultDialog(self, result):
+        self.fastRunDialog.entry_input.setText("")
+        dialog = QtWidgets.QDialog()
+        dialog.resize(163, 116)
+        dialog.label = QtWidgets.QLabel(dialog)
+        dialog.label.setGeometry(QtCore.QRect(50, 30, 67, 17))
+        dialog.buttonBox = QtWidgets.QDialogButtonBox(dialog)
+        dialog.buttonBox.setGeometry(QtCore.QRect(40, 70, 81, 25))
+        dialog.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
+        dialog.buttonBox.accepted.connect(dialog.close)
+        dialog.setWindowTitle("Result")
+        dialog.label.setText(result)
+        self.resultForm = dialog
+        self.resultForm.show()
 
     # Creates a dialog to execute a single fast run
     def createMultipleRunWindow(self):
@@ -653,6 +734,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # return a Finite Automaton object from the editor
     def getFA(self):
+        if self.faUpdated:
+            return self.FA
+
         states = self.get_faStates()
         alphabet = self.alphabet
 
@@ -700,7 +784,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
                 transitions[states[i]] = aux
 
-            return DFA(states, alphabet, init_state, final_states, transitions)
+            self.FA = DFA(states, alphabet, init_state, final_states, transitions)
+            self.faUpdated = True
+            return self.FA
 
         #end if
     # end of getFA
