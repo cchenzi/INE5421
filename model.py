@@ -126,6 +126,10 @@ class NFA:
              else:
               new_tr[state][symbol] = ''
 
+        states = []
+        for s in new_states:
+            states.append(s)
+
         print(f'transitions: {new_tr}')
         print(f'final states: {list(final_states)}')
         print(f'states: {states}')
