@@ -1,3 +1,5 @@
+import copy
+
 class NFA:
     def __init__(self, states, alphabet, init_state, final_states,
                  transitions, has_epsilon):

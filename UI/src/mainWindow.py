@@ -9,7 +9,7 @@
 from PySide2 import QtCore, QtWidgets
 from UI.src.faWindow import Ui_FAWindow
 import fileManipulation
-from nfa import NFA, DFA, RegularGrammar
+from model import NFA, DFA, RegularGrammar
 from regularExpression import RegularExpression
 
 

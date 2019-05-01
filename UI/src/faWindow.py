@@ -11,7 +11,7 @@ from PySide2.QtWidgets import QTableWidgetItem
 from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
 import fileManipulation
-from nfa import NFA, DFA
+from model import NFA, DFA
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):
@@ -204,6 +204,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.transition_table.insertColumn(0)
         self.transition_table.insertColumn(1)
         self.transition_table.insertColumn(2)
+
+        self.initialState_radioGroup.buttonClicked.connect(self.markFaModified)
+        self.finalStates_checkGroup.buttonClicked.connect(self.markFaModified)
 
         for i in range(len(self.alphabet)):
             self.transition_table.insertColumn(i+3)
@@ -647,6 +650,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.createResultDialog(str)
         else:
             self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
+            self.temp = None
             self.clearRunVariables(self.fastRunDialog)
 
     # creates a simple dialog to present the result for the user
@@ -676,6 +680,12 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     ####################################################################################
     # AUXILIARY FUNCTIONS
+    # sets the automaton atributes to mark that it was modified
+    def markFaModified(self):
+        self.faUpdated = False
+        self.saved = False
+        self.updateWindowTitle()
+
     # Retrieves the list of states from the transition table
     def get_faStates(self):
         states = []
