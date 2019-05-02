@@ -19,16 +19,17 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def __init__(self, parent, fa = None, filename = None):
         super(Ui_FAWindow, self).__init__()
         self.parent = parent
-        self.fileName = filename
 
         self.setupUi()
         self.connectSignals()
 
         if fa:
             self.createEditor(fa)
+            self.fileName = filename
             self.FA = fa
             self.saved = True
             self.faUpdated = True
+            self.opened = True
             self.updateWindowTitle()
         else:
             self.FA = None
@@ -529,6 +530,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewFA(self):
+        if self.opened and not(self.closeEditor()): return
+
         self.newFADialog = Ui_NewFADialog(self)
 
     # creates a file dialog to open or save files
@@ -733,6 +736,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def getTransitionSet(self, stateIndex, alphabetIndex):
         item = self.transition_table.item(stateIndex, alphabetIndex)
         data = (item.text())[1:-1]
+        print(data)
         if (not data == ""):
             return set(data.split(","))
 

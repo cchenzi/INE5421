@@ -8,6 +8,7 @@
 
 from PySide2 import QtCore, QtWidgets
 from UI.src.faWindow import Ui_FAWindow
+from UI.src.grammarWindow import Ui_GrammarWindow
 import fileManipulation
 from model import NFA, DFA, RegularGrammar
 from regularExpression import RegularExpression
@@ -120,7 +121,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     # Creates a grammar manipulation window
     def createGrammarWindow(self, type):
-        print(type)
+        self.grammarWindow = Ui_GrammarWindow(self)
 
     # Creates the AboutUs dialog window
     def showAbout(self):
@@ -141,7 +142,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.faWindow = Ui_FAWindow(self, obj, filename)
 
         elif isinstance(obj, RegularGrammar):
-            print("Regular grammar")
+            self.grammarWindow = Ui_GrammarWindow(self, obj, filename)
 
         #elif isinstance(obj, CFGrammar):
 
