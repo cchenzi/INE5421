@@ -9,6 +9,7 @@
 from PySide2 import QtCore, QtWidgets
 from UI.src.faWindow import Ui_FAWindow
 from UI.src.grammarWindow import Ui_GrammarWindow
+from UI.src.regexWindow import Ui_RegexWindow
 import fileManipulation
 from model import NFA, DFA, RegularGrammar
 from regularExpression import RegularExpression
@@ -117,7 +118,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     # Creates a Regular expression manipulation window
     def createREWindow(self):
-        print("Regular Expression")
+        self.regexWindow = Ui_RegexWindow(self)
 
     # Creates a grammar manipulation window
     def createGrammarWindow(self, type):
@@ -147,7 +148,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #elif isinstance(obj, CFGrammar):
 
         elif isinstance(obj, RegularExpression):
-            print("Regular expression")
+            self.regexWindow = Ui_RegexWindow(self, obj, filename)
 
         else:   # should be unreachable
             print("Deu ruim")

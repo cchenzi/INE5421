@@ -190,6 +190,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         try:
             if self.editing_table.item(row, 0).text() == "" and self.editing_table.item(row, 1).text() != "":
                 self.editing_table.removeRow(row)
+                self.markGrammModified()
                 return
         except AttributeError:
             pass
@@ -288,6 +289,17 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.resultForm.show()
 
 
+    # Creates a simple error dialog
+    def createErrorDialog(self, msg):
+        dialog = QtWidgets.QDialog()
+        dialog.resize(253, 137)
+        self.errorLabel = QtWidgets.QLabel(dialog)
+        self.errorLabel.setText(msg)
+        self.errorDialog = dialog
+        self.errorLabel.setWordWrap(True)
+        self.errorDialog.show()
+
+
     ####################################################################################
     # FILE ACTION HANDLER FUNCTIONS
     # new
@@ -319,6 +331,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # load
     def loadGramm(self, filename):
         obj = fileManipulation.read_file(filename)
+        if not(isinstance(obj, RegularGrammar)):
+            self.createErrorDialog("The selected file doesn't represent a Regular grammar!")
+            return
+
         self.populateEditor(obj)
         self.GRAMM = obj
         self.saved = True
@@ -360,6 +376,11 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.close()
         else:
             self.cleanEditingTable()
+
+        self.saved = True
+        self.grammUpdated = False
+        self.filename = False
+        self.updateWindowTitle()
 
     ####################################################################################
     # TEST ACTION HANDLER FUNCTIONS

@@ -558,6 +558,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # load
     def loadFA(self, fileName):
         obj = fileManipulation.read_file(fileName)
+        if not(isinstance(obj, DFA)) and not(isinstance(obj, NFA)):
+            self.createErrorDialog("The selected file doesn't represent a Finite Automaton!")
+            return
+
         self.createEditor(obj)
         self.FA = obj
         self.saved = True

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RegexWindow</class>
+ <widget class="QMainWindow" name="RegexWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLineEdit" name="regex_entry">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>180</y>
+      <width>641</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>140</y>
+      <width>301</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Edit the regular expression here:</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>640</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="file_actionNew"/>
+    <addaction name="file_actionOpen"/>
+    <addaction name="file_actionSave"/>
+    <addaction name="file_actionSaveAs"/>
+    <addaction name="file_actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuConvert">
+    <property name="title">
+     <string>Convert</string>
+    </property>
+    <addaction name="convert_actionToNFA"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuConvert"/>
+  </widget>
+  <action name="file_actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="file_actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="file_actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="file_actionSaveAs">
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+  </action>
+  <action name="file_actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="convert_actionToDFA">
+   <property name="text">
+    <string>Determinize to DFA</string>
+   </property>
+  </action>
+  <action name="convert_actionToNFA">
+   <property name="text">
+    <string>Convert to NFA</string>
+   </property>
+  </action>
+  <action name="test_actionTestType">
+   <property name="text">
+    <string>Test Grammar Type</string>
+   </property>
+  </action>
+  <action name="input_actionStep">
+   <property name="text">
+    <string>Step by State...</string>
+   </property>
+  </action>
+  <action name="input_actionMultipleRun">
+   <property name="text">
+    <string>Multiple Run</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
