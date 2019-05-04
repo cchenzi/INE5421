@@ -82,20 +82,35 @@ class NFA:
         new_states = {}
         state_queue = [self.epsilon_closure[self.init_state]]
         new_transitions = {}
+
+        # enquanto houverem estados para serem avaliados
         while bool(state_queue):
             new_states[f'q{index}'] = state_queue.pop()
             new_transitions[f'q{index}'] = {}
+
+            # inicializa a lista de transições
             for symbol_sa in self.alphabet:
                 new_transitions[f'q{index}'][symbol_sa] = set()
+
+            # pega cada estado do novo estado sendo avaliado
             for state in new_states[f'q{index}']:
+                # pega o fecho desse estado
                 for cls in self.epsilon_closure[state]:
+
+                    # pega o simbolo e os estados-alvo de cada transicao
                     for symbol, t_state in self.transitions[cls].items():
-                        if symbol != '&':
+                        if symbol in self.alphabet:
+
+                            # junta os estados que farao parte do novo estado determinizado
                             closure = set()
+
+                            # pega o fecho de cada estado na lista de estados-alvo da transicao
                             for cs in t_state:
                                 closure.update(self.epsilon_closure[cs])
                             new_transitions[f'q{index}'][symbol].update(closure)
                             nt = new_transitions[f'q{index}'][symbol]
+
+                            # coloca a lista de estados que vai
                             if (bool(nt)
                                     and not any(nt == set(nsv) for nsv in new_states.values())
                                     and not any(nt == set(sq) for sq in state_queue)):
@@ -114,17 +129,17 @@ class NFA:
         new_tr = {}
         aux = []
         for x in new_states.values():
-         aux.append(str(sorted(x))) 
+            aux.append(str(sorted(x)))
         states_dict = dict(zip(aux, new_states.keys()))
 
         for state, transition in new_transitions.items():
             new_tr[state] = {}
             for symbol in transition:
-             aux_tr = sorted(list(new_transitions[state][symbol]))
-             if aux_tr != []:
-              new_tr[state][symbol] = states_dict[str(aux_tr)]
-             else:
-              new_tr[state][symbol] = ''
+                aux_tr = sorted(list(new_transitions[state][symbol]))
+                if aux_tr != []:
+                    new_tr[state][symbol] = states_dict[str(aux_tr)]
+                else:
+                    new_tr[state][symbol] = ''
 
         states = []
         for s in new_states:
