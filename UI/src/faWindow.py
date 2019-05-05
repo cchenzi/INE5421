@@ -10,6 +10,7 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QTableWidgetItem
 from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
+from UI.src.multipleRunWindow import Ui_MRunWindow
 import fileManipulation
 from model import NFA, DFA
 
@@ -19,6 +20,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def __init__(self, parent, fa = None, filename = None):
         super(Ui_FAWindow, self).__init__()
         self.parent = parent
+        self.multipleRunWindow = None
+        self.fastRunDialog = None
 
         self.setupUi()
         self.connectSignals()
@@ -175,7 +178,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.convert_actionToGramm.triggered.connect(self.convertToGrammar)
         self.input_actionFastRun.triggered.connect(self.createFastRunDialog)
         self.input_actionStep.triggered
-        self.input_actionMultipleRun.triggered
+        self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
         self.pushButton_removeTransition.clicked.connect(self.createRemoveTransitionDialog)
 
@@ -270,6 +273,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
                 return
 
         event.accept()
+
+        if self.multipleRunWindow: self.multipleRunWindow.close()
+        if self.fastRunDialog: self.fastRunDialog.close()
+
         self.parent.show()
 
 
@@ -675,7 +682,17 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # Creates a dialog to execute a single fast run
     def createMultipleRunWindow(self):
-        print("Multiple run")
+        if not(self.opened):
+            self.createErrorDialog("You need a valid automaton to run inputs over!")
+            return
+
+        if not(self.faUpdated):
+            self.getFA()
+
+        if self.FA.init_state == '':
+            self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
+        else:
+            self.multipleRunWindow = Ui_MRunWindow(self)
 
     # Creates a dialog to execute a single fast run
     def createStepByRunWindow(self):
