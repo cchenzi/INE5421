@@ -22,23 +22,22 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.parent = parent
         self.multipleRunWindow = None
         self.fastRunDialog = None
+        self.fileName = filename
+        self.FA = fa
 
         self.setupUi()
         self.connectSignals()
 
         if fa:
             self.createEditor(fa)
-            self.FA = fa
             self.faUpdated = True
             self.opened = True
         else:
-            self.FA = None
             self.opened = False
             self.faUpdated = False
 
         if fa and filename:
             self.saved = True
-            self.fileName = filename
         else:
             self.saved = False
 
@@ -548,7 +547,20 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # convert to grammar
     def convertToGrammar(self):
-        print("to Grammar")
+        if not self.opened:
+            self.createErrorDialog("You don't have an automaton opened to be converted!!")
+            return
+
+        if not self.faUpdated:
+            self.getFA()
+
+        if isinstance(self.FA, NFA):
+            self.createErrorDialog("You are trying to convert a NFA to a Grammar. An intermediary DFA was generated to permit this conversion. Please, run this conversion over this new automaton.")
+            newFA = self.FA.determinize()
+            self.parent.createFAWindow(newFA)
+        else:
+            newGramm = self.FA.to_grammar()
+            self.parent.createGrammarWindow(newGramm)
 
 
     ####################################################################################

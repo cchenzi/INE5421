@@ -7,7 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PySide2 import QtCore, QtWidgets
-from model import RegularGrammar
+from model import RegularGrammar, NFA
 import fileManipulation
 
 
@@ -18,20 +18,24 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         super(Ui_GrammarWindow, self).__init__()
         self.parent = parent
         self.filename = filename
+        self.GRAMM = gramm
 
         self.setupUi()
         self.connectSignals()
 
         if gramm:
             self.populateEditor(gramm)
-            self.GRAMM = gramm
-            self.saved = True
             self.grammUpdated = True
-            self.updateWindowTitle()
         else:
-            self.GRAMM = None
-            self.saved = True
             self.grammUpdated = False
+
+        if gramm and filename:
+            self.saved = True
+        else:
+            self.saved = False
+
+        self.updateWindowTitle()
+
 
         self.parent.hide()
         self.show()
@@ -67,9 +71,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
         # CHANGED
         header = self.editing_table.horizontalHeader()
-        header.resizeSection(0, 100)
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         header.resizeSection(1, 20)
-        header.resizeSection(2, 400)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.insertRowEditor()
         # END OF CHANGES
 
@@ -148,7 +152,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.file_actionSave.triggered.connect(self.saveGramm)
         self.file_actionSaveAs.triggered.connect(lambda: self.createFileDialog("saveAs"))
         self.file_actionClose.triggered.connect(self.checkClose)
-        self.convert_actionRGToNFA.triggered
+        self.convert_actionRGToNFA.triggered.connect(self.regGrammToNFA)
         self.test_actionTestType.triggered
 
         # editing_table cells_change connect
@@ -386,6 +390,17 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
     ####################################################################################
     # CONVERT ACTION HANDLER FUNCTIONS
+    def regGrammToNFA(self):
+        if self.editing_table.rowCount() == 1:
+            self.createErrorDialog("You don't have a grammar to be converted!!")
+            return
+
+        if not self.grammUpdated:
+            self.getGramm()
+
+        # deveria testar se a gramatica eh regular ou nao
+        newFA = self.GRAMM.toNFA()
+        self.parent.createFAWindow(newFA)
 
 
     ####################################################################################
