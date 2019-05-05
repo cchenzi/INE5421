@@ -222,7 +222,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             return
 
         event.accept()
-        self.parent.show()
+
+        self.parent.childWindows.remove(self)
+        if not len(self.parent.childWindows):
+            self.parent.show()
 
 
     # updates the window title based on the file being manipulated and if it's saved or not
@@ -304,12 +307,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewGramm(self):
-        if not(self.cleanEditingTable()): return
-        self.saved = True
-        self.grammUpdated = False
-        self.GRAMM = None
-        self.filename = None
-        self.updateWindowTitle()
+        self.parent.createGrammarWindow()
 
     # creates a file dialog to open or save files
     def createFileDialog(self, mode):

@@ -122,7 +122,10 @@ class Ui_RegexWindow(QtWidgets.QMainWindow):
             return
 
         event.accept()
-        self.parent.show()
+
+        self.parent.childWindows.remove(self)
+        if not len(self.parent.childWindows):
+            self.parent.show()
 
 
     # updates the window title based on the file being manipulated and if it's saved or not
@@ -182,12 +185,7 @@ class Ui_RegexWindow(QtWidgets.QMainWindow):
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewRegex(self):
-        if not(self.cleanRegexEntry()): return
-        self.saved = True
-        self.regexUpdated = False
-        self.REGEX = None
-        self.filename = None
-        self.updateWindowTitle()
+        self.parent.createREWindow()
 
     # creates a file dialog to open or save files
     def createFileDialog(self, mode):
@@ -213,7 +211,7 @@ class Ui_RegexWindow(QtWidgets.QMainWindow):
         if not(isinstance(obj, RegularExpression)):
             self.createErrorDialog("The selected file doesn't represent a Regular expression!")
             return
-            
+
         self.regex_entry.setText(obj.description)
         self.REGEX = obj
         self.saved = True

@@ -21,6 +21,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         super(Ui_MainWindow, self).__init__()
         self.setupUi()
         self.connectSignals()
+        self.childWindows = []
         self.show()
 
 
@@ -101,28 +102,30 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_fa.clicked.connect(self.createFAWindow)
         self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
-        self.pushButton_rg.clicked.connect(lambda state: self.createGrammarWindow("regular"))
-        self.pushButton_fcg.clicked.connect(lambda state: self.createGrammarWindow("context-free"))
+        #self.pushButton_rg.clicked.connect(lambda state: self.createGrammarWindow("regular"))
+        #self.pushButton_fcg.clicked.connect(lambda state: self.createGrammarWindow("context-free"))
+        self.pushButton_rg.clicked.connect(self.createGrammarWindow)
+        self.pushButton_fcg.clicked.connect(self.createGrammarWindow)
         self.actionAbout.triggered.connect(self.showAbout)
         self.actionLoad.triggered.connect(self.createFileDialog)
 
 
     # SIGNAL FUNCTION HANDLERS
     # Creates a Finite Automaton manipulation window
-    def createFAWindow(self):
-        self.faWindow = Ui_FAWindow(self)
+    def createFAWindow(self, fa = None, filename = None):
+        self.childWindows.append(Ui_FAWindow(self, fa, filename))
 
     # Creates a Pushdown Automaton manipulation window
     def createPAWindow(self):
         print("Pushdown Automaton")
 
     # Creates a Regular expression manipulation window
-    def createREWindow(self):
-        self.regexWindow = Ui_RegexWindow(self)
+    def createREWindow(self, regex = None, filename = None):
+        self.childWindows.append(Ui_RegexWindow(self, regex, filename))
 
     # Creates a grammar manipulation window
-    def createGrammarWindow(self, type):
-        self.grammarWindow = Ui_GrammarWindow(self)
+    def createGrammarWindow(self, gramm = None, filename = None):
+        self.childWindows.append(Ui_GrammarWindow(self, gramm, filename))
 
     # Creates the AboutUs dialog window
     def showAbout(self):
@@ -140,7 +143,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         obj = fileManipulation.read_file(filename)
 
         if isinstance(obj, NFA) or isinstance(obj, DFA):
-            self.faWindow = Ui_FAWindow(self, obj, filename)
+            self.createFAWindow(self, obj, filename)
 
         elif isinstance(obj, RegularGrammar):
             self.grammarWindow = Ui_GrammarWindow(self, obj, filename)

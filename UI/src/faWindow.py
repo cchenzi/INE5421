@@ -28,17 +28,21 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
         if fa:
             self.createEditor(fa)
-            self.fileName = filename
             self.FA = fa
-            self.saved = True
             self.faUpdated = True
             self.opened = True
-            self.updateWindowTitle()
         else:
             self.FA = None
-            self.saved = False
             self.opened = False
             self.faUpdated = False
+
+        if fa and filename:
+            self.saved = True
+            self.fileName = filename
+        else:
+            self.saved = False
+
+        self.updateWindowTitle()
 
         self.parent.hide()
         self.show()
@@ -277,7 +281,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         if self.multipleRunWindow: self.multipleRunWindow.close()
         if self.fastRunDialog: self.fastRunDialog.close()
 
-        self.parent.show()
+        self.parent.childWindows.remove(self)
+        if not len(self.parent.childWindows):
+            self.parent.show()
 
 
     # updates the window title based on the file being manipulated and if it's saved or not
@@ -526,7 +532,19 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # CONVERT ACTION HANDLERS
     # convert to dfa
     def convertToDFA(self):
-        print("Determinize")
+        if not self.opened:
+            self.createErrorDialog("You don't have an automaton opened to be determinized!!")
+            return
+
+        if not self.faUpdated:
+            self.getFA()
+
+        if not isinstance(self.FA, NFA):
+            self.createErrorDialog("This automaton is already a DFA...")
+        else:
+            newFA = self.FA.determinize()
+            self.parent.createFAWindow(newFA)
+
 
     # convert to grammar
     def convertToGrammar(self):
@@ -537,9 +555,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewFA(self):
-        if self.opened and not(self.closeEditor()): return
-
-        self.newFADialog = Ui_NewFADialog(self)
+        if self.opened:
+            self.parent.createFAWindow()
+        else:
+            self.newFADialog = Ui_NewFADialog(self)
 
     # creates a file dialog to open or save files
     def createFileDialog(self, mode):
