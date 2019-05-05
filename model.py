@@ -1,4 +1,11 @@
+# description: "Projeto da disciplina de Linguagens Formais 2019.1"
+# authors:
+#     "Arthur Mesquita Pickcius",
+#     "Francisco Luiz Vicenzi",
+#     "Joao Fellipe Uller"
+# Copyright 2019
 import copy
+
 
 class NFA:
     def __init__(self, states, alphabet, init_state, final_states,
@@ -41,7 +48,7 @@ class NFA:
                             if epsilon_states not in aux:
                                 aux.append(epsilon_states)
                 # print(aux)
-                self.epsilon_closure[k] = list(set(aux))
+                self.epsilon_closure[k] = sorted(list(set(aux)))
             else:
                 self.epsilon_closure[k] = [k]
 
@@ -72,7 +79,6 @@ class NFA:
                     recursive_get_reachable(transition)
         recursive_get_reachable(self.init_state)
         self.states = reachable_states
-
 
     def determinize(self):
 
@@ -114,7 +120,7 @@ class NFA:
                             if (bool(nt)
                                     and not any(nt == set(nsv) for nsv in new_states.values())
                                     and not any(nt == set(sq) for sq in state_queue)):
-                                state_queue.append(list(nt))
+                                state_queue.append(sorted(list(nt)))
             index += 1
 
         # update states and set final states
@@ -125,7 +131,7 @@ class NFA:
             for symbol in self.alphabet:
                 for new_s, old_s in new_states.items():
                     if new_transitions[state][symbol] == old_s:
-                        new_transitions[state][symbol] = list(new_s)
+                        new_transitions[state][symbol] = sorted(list(new_s))
         new_tr = {}
         aux = []
         for x in new_states.values():
@@ -135,7 +141,7 @@ class NFA:
         for state, transition in new_transitions.items():
             new_tr[state] = {}
             for symbol in transition:
-                aux_tr = sorted(list(new_transitions[state][symbol]))
+                aux_tr = sorted(sorted(list(new_transitions[state][symbol])))
                 if aux_tr != []:
                     new_tr[state][symbol] = states_dict[str(aux_tr)]
                 else:
@@ -146,9 +152,9 @@ class NFA:
             states.append(s)
 
         print(f'transitions: {new_tr}')
-        print(f'final states: {list(final_states)}')
+        print(f'final states: {sorted(list(final_states))}')
         print(f'states: {states}')
-        return DFA(states, self.alphabet, 'q0', list(final_states), new_tr)
+        return DFA(states, self.alphabet, 'q0', sorted(list(final_states)), new_tr)
 
 
 class DFA:
