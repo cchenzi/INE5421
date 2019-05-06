@@ -30,13 +30,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         else:
             self.grammUpdated = False
 
-        if gramm and filename:
-            self.saved = True
-        else:
-            self.saved = False
+        self.saved = True
 
         self.updateWindowTitle()
-
 
         self.parent.hide()
         self.show()

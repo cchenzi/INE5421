@@ -25,14 +25,15 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.fastRunDialog = None
         self.fileName = filename
         self.FA = fa
+        self.saved = False  # just for initialization purposes
 
         self.setupUi()
         self.connectSignals()
 
         if fa:
-            self.createEditor(fa)
             self.faUpdated = True
             self.opened = True
+            self.createEditor(fa)
         else:
             self.opened = False
             self.faUpdated = False
@@ -190,10 +191,6 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # initializes the editor based on the entry automaton
     def createEditor(self, obj):
         self.newStateDialog = None
-        self.fileName = None
-        self.saved = False
-        self.faUpdated = True
-        self.FA = obj
         self.opened = True
 
         self.updateWindowTitle()
@@ -789,7 +786,6 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     def getTransitionSet(self, stateIndex, alphabetIndex):
         item = self.transition_table.item(stateIndex, alphabetIndex)
         data = (item.text())[1:-1]
-        print(data)
         if (not data == ""):
             return set(data.split(","))
 
