@@ -43,21 +43,30 @@ Elaborar uma aplicação, com interface gráfica para facilitar a iteração, pa
     Dia 20/06 - entrega da parte 3 - itens (i), (j), (k) e (l) da Definição do Trabalho
 
 
-### Geral
-# MELHORAR AS DESCRIÇÕES
-#### Ferramentas utilizadas
+### Ferramentas utilizadas
 O presente trabalho foi realizado na linguagem Python, utilizando, para a interface gráfica, a biblioteca Qt. É possível instalá-la utlizando o seguinte comando:
 ```
 pip install PySide2
 ```
 
-#### Modelagem e Estrutura de Dados
-O programa é orientado a objetos, em que cada modelo estudado (AF, GR, ER) consiste em uma classe. Para construir as transições e produções, utilizamos dicionários e listas.
-
-#### Utilização e exemplos
-O programa apresenta interface bem intuitiva, permitindo a leitura, gravação e edição de AFs, GRs e ERs. Sendo assim, é possível manipular uma instância por vez.
-<br></br>
-Os exemplos apresentados foram retirados das listas de exerícios, nomeados no formato ```<L:lista_E:exercicio_T:letra>```. Para manipulação, basta carregar o arquivo desejado, disponível na pasta ``` examples ```.
-
 #### Para transformação de um objeto UI em seu codigo py
 pyuic5 -o ./UI/src/<name>AUX.py  ./UI/Design/<name>.ui  #depois pega esse arquivo aux gerado e copia a definicao da janela para o arquivo correto
+
+### Modelagem e Estrutura de Dados
+O programa é orientado a objetos, em que cada modelo estudado (AF, GR, ER) consiste em uma classe. Para construir as transições e produções, utilizamos dicionários e listas.
+
+### Utilização e exemplos
+O programa apresenta interface bem intuitiva, permitindo a leitura, gravação e edição de AFs, GRs e ERs. Sendo assim, é possível manipular uma instância por vez.
+<br></br>
+Os exemplos apresentados foram retirados das listas de exerícios, nomeados no formato ```<L:lista_E:exercicio_T:letra>```. Para manipulação, basta carregar o arquivo desejado, disponível na pasta ``` examples ```, pelo menu ```File->Open```.
+
+#### Autômatos Finitos
+Para criar um novo automato basta ir no menu ```File->new```, e aparecerá uma janela perguntando os símbolos do alfabeto. Os símbolos devem ser inseridos separados por vírgulas E.g. ```a,b,c``` .
+Os estados e transições podem ser inseridos utilizando os botões da barra lateral.
+
+As operações de determinização e conversão podem ser encontradas no menu ```Convert```.
+
+#### Gramáticas Regulares
+
+
+#### Expressões Regulares

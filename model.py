@@ -41,16 +41,20 @@ class NFA:
                 aux = []
                 aux.append(k)
                 for state in tr['&']:
-                    if state not in aux:
+                    if state not in aux and state in self.states:
                         aux.append(state)
                     for y in aux:
-                        for epsilon_states in self.transitions[y]['&']:
-                            if epsilon_states not in aux:
-                                aux.append(epsilon_states)
+                        if y in self.states:
+                            for epsilon_states in self.transitions[y]['&']:
+                                if epsilon_states not in aux \
+                                        and epsilon_states in self.states:
+                                    aux.append(epsilon_states)
                 # print(aux)
                 self.epsilon_closure[k] = sorted(list(set(aux)))
-            else:
+            elif k in self.states:
                 self.epsilon_closure[k] = [k]
+            else:
+                self.epsilon_closure = []
 
     def minimize(self):
         self.discard_dead()
@@ -81,10 +85,8 @@ class NFA:
         self.states = reachable_states
 
     def determinize(self):
-        print('\n')
         self.compute_epsilon_closure()
-        if any('&' in tr for tr in self.transitions.values()):
-            print(f'epsilon closure: {self.epsilon_closure}')
+        print(f'\nepsilon closure: {self.epsilon_closure}')
         index = 0
         new_states = {}
         state_queue = [self.epsilon_closure[self.init_state]]
@@ -101,29 +103,32 @@ class NFA:
 
             # pega cada estado do novo estado sendo avaliado
             for state in new_states[f'q{index}']:
-                # pega o fecho desse estado
-                for cls in self.epsilon_closure[state]:
+                if state in self.states:
+                    # pega o fecho desse estado
+                    for cls in self.epsilon_closure[state]:
 
-                    # pega o simbolo e os estados-alvo de cada transicao
-                    for symbol, t_state in self.transitions[cls].items():
-                        if symbol in self.alphabet:
+                        # pega o simbolo e os estados-alvo de cada transicao
+                        for symbol, t_state in self.transitions[cls].items():
+                            if symbol in self.alphabet:
+                                # junta os estados que farao parte do novo estado determinizado
+                                closure = set()
 
-                            # junta os estados que farao parte do novo estado determinizado
-                            closure = set()
+                                # pega o fecho de cada estado na lista de estados-alvo da transicao
+                                for cs in t_state:
+                                    if cs in self.states:
+                                        closure.update(self.epsilon_closure[cs])
+                                new_transitions[f'q{index}'][symbol].update(closure)
+                                nt = new_transitions[f'q{index}'][symbol]
 
-                            # pega o fecho de cada estado na lista de estados-alvo da transicao
-                            for cs in t_state:
-                                closure.update(self.epsilon_closure[cs])
-                            new_transitions[f'q{index}'][symbol].update(closure)
-                            nt = new_transitions[f'q{index}'][symbol]
-
-                            # coloca a lista de estados que se tornarao um novo estado na fila
-                            if (bool(nt)
-                                    and not any(nt == set(nsv) for nsv in new_states.values())
-                                    and not any(nt == set(sq) for sq in state_queue)):
-                                state_queue.append(sorted(list(nt)))
+                                # coloca a lista de estados que se tornarao um novo estado na fila
+                                if (bool(nt)
+                                        and not any(nt == set(nsv) for nsv in new_states.values())
+                                        and not any(nt == set(sq) for sq in state_queue)):
+                                    state_queue.append(sorted(list(nt)))
+                                    # print(f'state_queue: {state_queue}')
             index += 1
 
+        print(f'new_states: {new_states}')
         # update states and set final states
         final_states = set()
         for state, old_states in new_states.items():
@@ -148,16 +153,16 @@ class NFA:
                 if aux_tr != []:
                     new_tr[state][symbol] = states_dict[str(aux_tr)]
                 else:
-                    new_tr[state][symbol] = ''
+                    new_tr[state][symbol] = '-'
 
         # coloca os estados no formato da saida
         states = []
         for s in new_states:
             states.append(s)
 
-        print(f'transitions: {new_tr}')
         print(f'final states: {sorted(list(final_states))}')
         print(f'states: {states}')
+        print(f'\ntransitions: {new_tr}\n')
         return DFA(states, self.alphabet, 'q0', sorted(list(final_states)), new_tr)
 
 

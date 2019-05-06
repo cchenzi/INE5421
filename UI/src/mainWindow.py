@@ -137,21 +137,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if fileName:
             self.loadFile(fileName)
 
-
     # opens a valid file and redirects it to the right path
     def loadFile(self, filename):
         obj = fileManipulation.read_file(filename)
 
         if isinstance(obj, NFA) or isinstance(obj, DFA):
-            self.createFAWindow(self, obj, filename)
+            self.createFAWindow(obj, filename)
 
         elif isinstance(obj, RegularGrammar):
-            self.grammarWindow = Ui_GrammarWindow(self, obj, filename)
+            self.createGrammarWindow(obj, filename)
 
-        #elif isinstance(obj, CFGrammar):
+        # elif isinstance(obj, CFGrammar):
 
         elif isinstance(obj, RegularExpression):
-            self.regexWindow = Ui_RegexWindow(self, obj, filename)
+            self.createREWindow(obj, filename)
 
         else:   # should be unreachable
             print("Deu ruim")
