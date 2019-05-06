@@ -81,9 +81,10 @@ class NFA:
         self.states = reachable_states
 
     def determinize(self):
-
+        print('\n')
         self.compute_epsilon_closure()
-        print(f'\n\nepsilon closure: {self.epsilon_closure}')
+        if any('&' in tr for tr in self.transitions.values()):
+            print(f'epsilon closure: {self.epsilon_closure}')
         index = 0
         new_states = {}
         state_queue = [self.epsilon_closure[self.init_state]]
@@ -116,7 +117,7 @@ class NFA:
                             new_transitions[f'q{index}'][symbol].update(closure)
                             nt = new_transitions[f'q{index}'][symbol]
 
-                            # coloca a lista de estados que vai
+                            # coloca a lista de estados que se tornarao um novo estado na fila
                             if (bool(nt)
                                     and not any(nt == set(nsv) for nsv in new_states.values())
                                     and not any(nt == set(sq) for sq in state_queue)):
@@ -132,6 +133,8 @@ class NFA:
                 for new_s, old_s in new_states.items():
                     if new_transitions[state][symbol] == old_s:
                         new_transitions[state][symbol] = sorted(list(new_s))
+
+        # troca as listas de estados pelo nome dos novos estados
         new_tr = {}
         aux = []
         for x in new_states.values():
@@ -141,12 +144,13 @@ class NFA:
         for state, transition in new_transitions.items():
             new_tr[state] = {}
             for symbol in transition:
-                aux_tr = sorted(sorted(list(new_transitions[state][symbol])))
+                aux_tr = sorted(list(new_transitions[state][symbol]))
                 if aux_tr != []:
                     new_tr[state][symbol] = states_dict[str(aux_tr)]
                 else:
                     new_tr[state][symbol] = ''
 
+        # coloca os estados no formato da saida
         states = []
         for s in new_states:
             states.append(s)
@@ -195,7 +199,8 @@ class DFA:
             aux = []
             for q, t in x.items():
                 aux.append(q + t)
-                if t in self.final_states: aux.append(q)
+                if t in self.final_states:
+                    aux.append(q)
             productions[k] = aux
         return RegularGrammar(list(self.transitions.keys()), self.alphabet, productions, self.init_state)
 
