@@ -60,13 +60,15 @@ O programa apresenta interface bem intuitiva, permitindo a leitura, gravação e
 <br></br>
 Os exemplos apresentados foram retirados das listas de exerícios, nomeados no formato ```<L:lista_E:exercicio_T:letra>```. Para manipulação, basta carregar o arquivo desejado, disponível na pasta ``` examples ```, pelo menu ```File->Open```.
 
+#### Operações de conversão
+As operações de determinização e conversão podem ser encontradas no menu ```Convert``` nas janelas dos autômatos, gramáticas e expressões regulares.
+
 #### Autômatos Finitos
-Para criar um novo automato basta ir no menu ```File->new```, e aparecerá uma janela perguntando os símbolos do alfabeto. Os símbolos devem ser inseridos separados por vírgulas E.g. ```a,b,c``` .
+Para **criar um novo automato** basta ir no menu ```File->new```, e aparecerá uma janela perguntando os símbolos do alfabeto. Os símbolos devem ser inseridos separados por vírgulas E.g. ```a,b,c``` .
 Os estados e transições podem ser inseridos utilizando os botões da barra lateral.
 
-As operações de determinização e conversão podem ser encontradas no menu ```Convert```.
-
 #### Gramáticas Regulares
-
+Para **editar uma gramática** é necessário clicar em algum item da coluna ```ls``` e adicionar um símbolo não terminal. Com o símbolo não terminal na coluna ```ls```, a coluna ```rs``` é liberada para que sejam adicionadas as regras de produção separadas por ```|```, seguindo as regras das gramáticas regulares.
+E.g. ```S -> aA|a``` .
 
 #### Expressões Regulares

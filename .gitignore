@@ -1,6 +1,5 @@
 # ignore the pycache folder
-__pycache__/
-/UI/src/__pycache__/
+*__pycache__/
 
 #vscode
 .vscode/
@@ -9,4 +8,13 @@ __pycache__/
 *.dat
 
 #pycharm
-.idea
+.idea/
+
+#poetry
+*egg-info/
+.python-version
+
+# pyinstaller
+dist/
+build/
+*.spec
