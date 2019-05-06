@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './UI/Design/faWindow.ui'
-#
-# Created by: PyQt5 UI code generator 5.12.1
-#
-# WARNING! All changes made in this file will be lost!
+# description: "Projeto da disciplina de Linguagens Formais 2019.1"
+# authors:
+#     "Arthur Mesquita Pickcius",
+#     "Francisco Luiz Vicenzi",
+#     "Joao Fellipe Uller"
+# Copyright 2019
 
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QTableWidgetItem

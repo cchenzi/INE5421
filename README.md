@@ -44,13 +44,19 @@ Elaborar uma aplicação, com interface gráfica para facilitar a iteração, pa
 
 
 ### Ferramentas utilizadas
-O presente trabalho foi realizado na linguagem Python, utilizando, para a interface gráfica, a biblioteca Qt. É possível instalá-la utlizando o seguinte comando:
+O presente trabalho foi realizado na linguagem Python ```versão 3.7```, utilizando, para a interface gráfica, a biblioteca Qt. É possível instalá-la utlizando o seguinte comando:
 ```
 pip install PySide2
 ```
 
-#### Para transformação de um objeto UI em seu codigo py
-pyuic5 -o ./UI/src/<name>AUX.py  ./UI/Design/<name>.ui  #depois pega esse arquivo aux gerado e copia a definicao da janela para o arquivo correto
+#### Para rodar o programa
+Rodar o arquivo ```main.py``` com o comando
+```
+python3 main.py
+```
+
+<!-- #### Para transformação de um objeto UI em seu codigo py
+pyuic5 -o ./UI/src/<name>AUX.py  ./UI/Design/<name>.ui  #depois pega esse arquivo aux gerado e copia a definicao da janela para o arquivo correto -->
 
 ### Modelagem e Estrutura de Dados
 O programa é orientado a objetos, em que cada modelo estudado (AF, GR, ER) consiste em uma classe. Para construir as transições e produções, utilizamos dicionários e listas.
@@ -63,6 +69,9 @@ Os exemplos apresentados foram retirados das listas de exerícios, nomeados no f
 #### Operações de conversão
 As operações de determinização e conversão podem ser encontradas no menu ```Convert``` nas janelas dos autômatos, gramáticas e expressões regulares.
 
+#### Salvar/abrir arquivos
+As operações de abrir e salvar podem ser encontradas no menu ```File``` nas janelas dos autômatos, gramáticas e expressões regulares.
+
 #### Autômatos Finitos
 Para **criar um novo automato** basta ir no menu ```File->new```, e aparecerá uma janela perguntando os símbolos do alfabeto. Os símbolos devem ser inseridos separados por vírgulas E.g. ```a,b,c``` .
 Os estados e transições podem ser inseridos utilizando os botões da barra lateral.
@@ -72,3 +81,5 @@ Para **editar uma gramática** é necessário clicar em algum item da coluna ```
 E.g. ```S -> aA|a``` .
 
 #### Expressões Regulares
+A **edição de expressões regulares** é feita de forma simples, onde o usuário apenas digita a expressão.
+E.g. ```abba*abba(a|b)*```
