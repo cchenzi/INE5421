@@ -76,7 +76,7 @@ As operações de abrir e salvar podem ser encontradas no menu ```File``` nas ja
 Para **criar um novo automato** basta ir no menu ```File->new```, e aparecerá uma janela perguntando os símbolos do alfabeto. Os símbolos devem ser inseridos separados por vírgulas E.g. ```a,b,c``` .
 Os estados e transições podem ser inseridos utilizando os botões da barra lateral.
 
-Para fazer o **reconhecimento de uma sentença**, existe o menu ```Input``` com as opções de ```Fast Run``` e ```Step by State...```(ainda não) para uma sentençam e a opção ```Multiple Run``` para testar um conjunto de sentenças.
+Para fazer o **reconhecimento de uma sentença**, existe o menu ```Input``` com as opções de ```Fast Run``` e ```Step by State...``` (esta última disponível apenas na visualização pelo terminal) para uma sentençam e a opção ```Multiple Run``` para testar um conjunto de sentenças.
 
 #### Gramáticas Regulares
 Para **editar uma gramática** é necessário clicar em algum item da coluna ```ls``` e adicionar um símbolo não terminal. Com o símbolo não terminal na coluna ```ls```, a coluna ```rs``` é liberada para que sejam adicionadas as regras de produção separadas por ```|```, seguindo as regras das gramáticas regulares.
