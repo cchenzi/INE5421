@@ -841,7 +841,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             for i in range(len(states)):
                 aux = {}
                 for j in range(len(alphabet)):
-                    aux[alphabet[j]] = self.transition_table.cellWidget(i, j+3).currentText()
+                    text = self.transition_table.cellWidget(i, j+3).currentText()
+                    if text == "-": text = ""
+                    aux[alphabet[j]] = text
 
                 transitions[states[i]] = aux
 

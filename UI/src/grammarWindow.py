@@ -30,7 +30,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         else:
             self.grammUpdated = False
 
-        self.saved = True
+        if gramm and not filename:
+            self.saved = False
+        else:
+            self.saved = True
 
         self.updateWindowTitle()
 
