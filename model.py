@@ -196,10 +196,7 @@ class DFA:
     def minimize(self):
         self.discard_unreachable()
         self.discard_dead()
-        classes = self.group_equivalent()
-        self.states = []
-        for group in classes:
-            self.states.append(group.pop())
+        self.group_equivalent()
 
     def discard_dead(self):
         last_alive_states = set()
@@ -292,9 +289,28 @@ class DFA:
                         if not on_list:
                             classes.append({state})
                         relations.append([state, target_class])
-                        print(f"relations: {relations}")
-                        print(f"classes: {classes}")
-        return classes
+        print(f"classes: {classes}")
+
+        self.states = []
+        for group in classes:
+            new_state = None
+            if self.init_state in group:
+                new_state = self.init_state
+            else:
+                new_state = group.pop()
+            for st, trs in self.transitions.items():
+                for symbol in trs:
+                    if self.transitions[st][symbol] in group:
+                        self.transitions[st][symbol] = new_state
+            self.states.append(new_state)
+
+        dead = set(self.transitions).difference(set(self.states))
+        for state in dead:
+            self.transitions.pop(state)
+            if state in self.final_states:
+                self.final_states.remove(state)
+
+        print(f"classes: {classes}")
 
 
 class RegularGrammar:
