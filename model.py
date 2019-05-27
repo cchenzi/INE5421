@@ -194,18 +194,30 @@ class DFA:
         )
 
     def minimize(self):
-        self.discard_dead()
         self.discard_unreachable()
+        self.discard_dead()
+        classes = self.group_equivalent()
+        self.states = []
+        for group in classes:
+            self.states.append(group.pop())
 
     def discard_dead(self):
+        last_alive_states = set()
         alive_states = set(self.final_states)
 
-        for start_state in self.states:
-            if start_state not in alive_states:
-                for state in self.states:
-                    if alive_states.intersection(set(self.transitions[state].values())):
-                        alive_states.add(state)
+        while last_alive_states != alive_states:
+            last_alive_states = alive_states.copy()
+            for state in self.states:
+                if state not in alive_states and alive_states.intersection(
+                    set(self.transitions[state].values())
+                ):
+                    alive_states.add(state)
 
+        if self.init_state not in alive_states:
+            print("ERROR: init state is DEAD!")
+        dead_states = set(self.states).difference(alive_states)
+        for dead_state in dead_states:
+            self.transitions.pop(dead_state)
         self.states = list(alive_states)
 
     def discard_unreachable(self):
@@ -213,12 +225,76 @@ class DFA:
 
         def recursive_reachable(current_state):
             for state in self.transitions[current_state].values():
-                if state not in reachable:
+                if state not in reachable and state in self.states:
                     reachable.add(state)
                     recursive_reachable(state)
 
         recursive_reachable(self.init_state)
+
+        unreachable = set(self.states).difference(reachable)
+        for state in unreachable:
+            self.transitions.pop(state)
+            if state in self.final_states:
+                self.final_states.remove(state)
+        if not self.final_states:
+            print("ERROR: No final states!")
         self.states = list(reachable)
+
+    def group_equivalent(self):
+        print(f"states: {self.states}")
+        final_states = set(self.final_states)
+        non_final_states = set(self.states).difference(final_states)
+
+        classes = [non_final_states, final_states]
+        last_classes = []
+
+        def find_class(state: str) -> set:
+            for eclass in last_classes:
+                if state in eclass:
+                    return eclass.copy()
+            return None
+
+        def copy_classes(classes):
+            cpy = []
+            for cclass in classes:
+                cpy.append(cclass.copy())
+            return cpy
+
+        def remove_state(state, classes):
+            for inner_class in classes:
+                if state in inner_class:
+                    inner_class.remove(state)
+            new_classes = []
+            for cl in classes:
+                if cl:
+                    new_classes.append(cl)
+            return new_classes
+
+        while classes != last_classes:
+            last_classes = copy_classes(classes)
+            for symbol in self.alphabet:
+                for eclass in last_classes:
+                    relations = []
+
+                    for state in eclass:
+                        target_class = find_class(self.transitions[state][symbol])
+                        on_list = False
+
+                        classes = remove_state(state, classes)
+
+                        for row in relations:  # Row[0]=state Row[1]=target class
+                            if target_class == row[1]:
+                                on_list = True
+
+                                for inner_class in classes:
+                                    if row[0] in inner_class:
+                                        inner_class.add(state)
+                        if not on_list:
+                            classes.append({state})
+                        relations.append([state, target_class])
+                        print(f"relations: {relations}")
+                        print(f"classes: {classes}")
+        return classes
 
 
 class RegularGrammar:
@@ -261,7 +337,7 @@ def test_minimization_alives():
     transitions = {
         "S": {"a": "A", "b": "S"},
         "A": {"a": "S", "b": "A"},
-        "B": {"a": "A", "b": "B"}
+        "B": {"a": "A", "b": "B"},
     }
 
     init_state = "S"
@@ -273,7 +349,7 @@ def test_minimization_alives():
     transitions = {
         "S": {"a": "B", "b": "S"},
         "A": {"a": "A", "b": "A"},
-        "B": {"a": "A", "b": "B"}
+        "B": {"a": "A", "b": "B"},
     }
     dfa = DFA(states, alphabet, init_state, final_states, transitions)
     dfa.discard_dead()
@@ -297,6 +373,47 @@ def test_minimization_reachables():
     print(dfa.states)
     if set(dfa.states) == {"S", "A"}:
         print("Reachable yay!!! 1")
+
+
+def test_group_equivalent():
+    states = ["S", "A", "B", "C"]
+    alphabet = ["a", "b"]
+    final_states = ["A", "B"]
+    transitions = {
+        "S": {"a": "A", "b": "S"},
+        "A": {"a": "A", "b": "B"},
+        "B": {"a": "A", "b": "B"},
+        "C": {"a": "A", "b": "S"},
+    }
+
+    init_state = "S"
+    dfa = DFA(states, alphabet, init_state, final_states, transitions)
+    dfa.group_equivalent()
+    print(dfa.states)
+    if set(dfa.states) == {"S", "A"}:
+        print("Group yay!!! 1")
+
+
+def test_minimization():
+    print("\nTest minimization:")
+    states = ["A", "B", "C", "D", "E", "F", "G", "H"]
+    alphabet = ["0", "1"]
+    final_states = ["A", "D", "G"]
+    transitions = {
+        "A": {"0": "G", "1": "B"},
+        "B": {"0": "F", "1": "E"},
+        "C": {"0": "C", "1": "G"},
+        "D": {"0": "A", "1": "H"},
+        "E": {"0": "E", "1": "A"},
+        "F": {"0": "B", "1": "C"},
+        "G": {"0": "G", "1": "F"},
+        "H": {"0": "H", "1": "D"},
+    }
+
+    init_state = "A"
+    dfa = DFA(states, alphabet, init_state, final_states, transitions)
+    dfa.minimize()
+    print(dfa.states)
 
 
 def test_determinization():
@@ -337,6 +454,9 @@ def test_determinization():
 
 
 if __name__ == "__main__":
-    test_minimization_alives()
-    print('----------------------')
-    test_minimization_reachables()
+    # test_minimization_alives()
+    # print('----------------------')
+    # test_minimization_reachables()
+    # print('----------------------')
+    # test_group_equivalent()
+    test_minimization()
