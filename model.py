@@ -242,33 +242,30 @@ class DFA:
         self.states = list(alive_states)
 
     def discard_unreachable(self):
-        reachable = set()
+        reachable = {self.init_state}
+        last_reachable = set()
 
-        def recursive_reachable(current_state):
-            for state in self.transitions[current_state].values():
-                if state not in reachable and state in self.states:
-                    reachable.add(state)
-                    recursive_reachable(state)
-
-        recursive_reachable(self.init_state)
+        while reachable != last_reachable:
+            last_reachable = reachable.copy()
+            for state in self.states:
+                if state in reachable:
+                    reachable.update(self.transitions[state].values())
 
         unreachable = set(self.states).difference(reachable)
         for state in unreachable:
             self.transitions.pop(state)
             if state in self.final_states:
                 self.final_states.remove(state)
-        if not self.final_states:
-            print("ERROR: No final states!")
         self.states = list(reachable)
         print(f'reachable states: {reachable}')
 
     def group_equivalent(self):
-        print(f"states: {self.states}")
         final_states = set(self.final_states)
         non_final_states = set(self.states).difference(final_states)
 
         classes = [non_final_states, final_states]
         last_classes = []
+        previous_classes = []
 
         def find_class(state: str) -> set:
             for eclass in last_classes:
@@ -292,9 +289,10 @@ class DFA:
                     new_classes.append(cl)
             return new_classes
 
-        while classes != last_classes:
-            last_classes = copy_classes(classes)
+        while classes != previous_classes:
+            previous_classes = copy_classes(last_classes)
             for symbol in self.alphabet:
+                last_classes = copy_classes(classes)
                 for eclass in last_classes:
                     relations = []
 
@@ -305,16 +303,16 @@ class DFA:
                         classes = remove_state(state, classes)
 
                         for row in relations:  # Row[0]=state Row[1]=target class
-                            if target_class == row[1]:
+                            if target_class == row[1]:  # goes to same class
                                 on_list = True
 
+                                # search for the state tha goes to same class
                                 for inner_class in classes:
                                     if row[0] in inner_class:
                                         inner_class.add(state)
                         if not on_list:
                             classes.append({state})
                         relations.append([state, target_class])
-        print(f"classes: {classes}")
 
         self.states = []
         for group in classes:
@@ -334,8 +332,6 @@ class DFA:
             self.transitions.pop(state)
             if state in self.final_states:
                 self.final_states.remove(state)
-
-        print(f"classes: {classes}")
 
 
 class RegularGrammar:
@@ -508,135 +504,3 @@ def to_transitions(tr1_converted, tr2_converted, new_states, new_ab):
             transitions[new_states[count]] = dd_aux
             count += 1
     return transitions
-
-
-def test_minimization_alives():
-    states = ["S", "A", "B"]
-    alphabet = ["a", "b"]
-    final_states = ["B"]
-    transitions = {
-        "S": {"a": "A", "b": "S"},
-        "A": {"a": "S", "b": "A"},
-        "B": {"a": "A", "b": "B"},
-    }
-
-    init_state = "S"
-    dfa = DFA(states, alphabet, init_state, final_states, transitions)
-    dfa.discard_dead()
-    if set(dfa.states) == {"B"}:
-        print("Alive yay!!! 1")
-
-    transitions = {
-        "S": {"a": "B", "b": "S"},
-        "A": {"a": "A", "b": "A"},
-        "B": {"a": "A", "b": "B"},
-    }
-    dfa = DFA(states, alphabet, init_state, final_states, transitions)
-    dfa.discard_dead()
-    if set(dfa.states) == {"S", "B"}:
-        print("Alive yay!!! 2")
-
-
-def test_minimization_reachables():
-    states = ["S", "A", "B"]
-    alphabet = ["a", "b"]
-    final_states = ["A", "B"]
-    transitions = {
-        "S": {"a": "A", "b": "S"},
-        "A": {"a": "S", "b": "A"},
-        "B": {"a": "A", "b": "B"},
-    }
-
-    init_state = "S"
-    dfa = DFA(states, alphabet, init_state, final_states, transitions)
-    dfa.discard_unreachable()
-    print(dfa.states)
-    if set(dfa.states) == {"S", "A"}:
-        print("Reachable yay!!! 1")
-
-
-def test_group_equivalent():
-    states = ["S", "A", "B", "C"]
-    alphabet = ["a", "b"]
-    final_states = ["A", "B"]
-    transitions = {
-        "S": {"a": "A", "b": "S"},
-        "A": {"a": "A", "b": "B"},
-        "B": {"a": "A", "b": "B"},
-        "C": {"a": "A", "b": "S"},
-    }
-
-    init_state = "S"
-    dfa = DFA(states, alphabet, init_state, final_states, transitions)
-    dfa.group_equivalent()
-    print(dfa.states)
-    if set(dfa.states) == {"S", "A"}:
-        print("Group yay!!! 1")
-
-
-def test_minimization():
-    print("\nTest minimization:")
-    states = ["A", "B", "C", "D", "E", "F", "G", "H"]
-    alphabet = ["0", "1"]
-    final_states = ["A", "D", "G"]
-    transitions = {
-        "A": {"0": "G", "1": "B"},
-        "B": {"0": "F", "1": "E"},
-        "C": {"0": "C", "1": "G"},
-        "D": {"0": "A", "1": "H"},
-        "E": {"0": "E", "1": "A"},
-        "F": {"0": "B", "1": "C"},
-        "G": {"0": "G", "1": "F"},
-        "H": {"0": "H", "1": "D"},
-    }
-
-    init_state = "A"
-    dfa = DFA(states, alphabet, init_state, final_states, transitions)
-    dfa.minimize()
-    print(dfa.states)
-
-
-def test_determinization():
-    states = ["S", "A", "B", "C", "X"]
-    alphabet = ["a", "b"]
-    final_states = ["S", "X"]
-    transitions = {
-        "S": {"a": ["A"], "b": ["C", "X"]},
-        "A": {"a": ["B"], "b": ["A"]},
-        "B": {"a": ["C", "X"], "b": ["B"]},
-        "C": {"a": ["A"], "b": ["C", "X"]},
-        "X": {"a": [], "b": []},
-    }
-    init_state = "S"
-    a1 = NFA(states, alphabet, init_state, final_states, transitions, False)
-    a1.determinize()
-
-    states = ["p", "q", "r"]
-    alphabet = ["a", "b", "c"]
-    init_state = "p"
-    final_states = ["r"]
-    transitions = {
-        "p": {"a": ["p"], "b": ["q"], "c": ["r"], "&": []},
-        "q": {"a": ["q"], "b": ["r"], "c": [], "&": ["p"]},
-        "r": {"a": ["r"], "b": [], "c": ["p"], "&": ["q"]},
-    }
-
-    a2 = NFA(states, alphabet, init_state, final_states, transitions, True)
-    a2.determinize()
-
-    transitions = {
-        "p": {"a": [], "b": ["q"], "c": ["r"], "&": ["q"]},
-        "q": {"a": ["p"], "b": ["r"], "c": ["p", "q"], "&": []},
-        "r": {"a": [], "b": [], "c": [], "&": []},
-    }
-    a3 = NFA(states, alphabet, init_state, final_states, transitions, True)
-    a3.determinize()
-
-
-if __name__ == "__main__":
-    # test_minimization_alives()
-    # print('----------------------')
-    # test_minimization_reachables()
-    # print('----------------------')
-    # test_group_equivalent()
-    test_minimization()
