@@ -235,6 +235,7 @@ class DFA:
 
         if self.init_state not in alive_states:
             print("ERROR: init state is DEAD!")
+            self.init_state = ''
         dead_states = set(self.states).difference(alive_states)
         for dead_state in dead_states:
             self.transitions.pop(dead_state)
@@ -259,6 +260,7 @@ class DFA:
         if not self.final_states:
             print("ERROR: No final states!")
         self.states = list(reachable)
+        print(f'reachable states: {reachable}')
 
     def group_equivalent(self):
         print(f"states: {self.states}")
@@ -366,72 +368,47 @@ class RegularGrammar:
             False,
         )
 
-    # Retorna true se for regular, falso caso contrário
-    def check_type(self):
-        error = False
-        for non, prods in self.productions.items():
-            for x in prods:
-                if len(x) > 2:
-                    error = True
-                    print(x)
-                    break
-                if len(x) > 1:
-                    if x[0] not in self.terminals:
-                        error = True
-                        print(x)
-                        break
-                    if x[1] not in self.nonterminals:
-                        error = True
-                        print(x)
-                        break
-                else:
-                    if x not in self.terminals:
-                        error = True
-                        print(x)
-                        break
-        return not error
-
 
 def union(automata_1, automata_2):
     # Quantidade de estados novos = velhos + inicial + final
     tr_len = len(automata_1.transitions) + len(automata_2.transitions) + 2
-    
+
     # Unindo alfabetos e adicionando epsilon
     new_ab = automata_1.alphabet + automata_2.alphabet
     if '&' not in new_ab:
         new_ab.append('&')
     new_ab = list(set(new_ab))
     new_states = []
-    
+
     # Criando e convertendo transições para os novos estados
     transition_conversion_1, transition_conversion_2, new_states = create_conversion(automata_1.transitions, automata_2.transitions, tr_len, True)
     tr1_converted = convert_transitions(automata_1.transitions, transition_conversion_1, automata_1.init_state)
     tr2_converted = convert_transitions(automata_2.transitions, transition_conversion_2, automata_2.init_state)
-    
+
     # Une ambas as transições
     new_transitions = to_transitions(tr1_converted, tr2_converted, new_states, new_ab)
-    
+
     # Adicionando inicial e final
     new_states.append('q0')
     new_states.append('qf')
-    
+
     # Transição por epsilon de q0 para os respectivos estados iniciais
     new_transitions['q0'] = dd_aux = {k: [] for k in new_ab}
     new_transitions['q0']['&'].append(transition_conversion_1[automata_1.init_state])
     new_transitions['q0']['&'].append(transition_conversion_2[automata_2.init_state])
-    
-    
-    
+
+
+
     # Transição por epsilon dos estados finais para o estado final qf
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, 'qf')
     new_transitions = append_final_states(new_transitions, transition_conversion_2, automata_2.final_states, 'qf')
-    
+
     return NFA(new_states, new_ab, ['q0'], ['qf'], new_transitions, True)
 
 
 def concatenation(automata_1, automata_2):
     tr_len = len(automata_1.transitions) + len(automata_2.transitions)
-    
+
     # Unindo alfabetos e adicionando epsilon
     new_ab = automata_1.alphabet + automata_2.alphabet
     if '&' not in new_ab:
@@ -442,21 +419,21 @@ def concatenation(automata_1, automata_2):
     transition_conversion_1, transition_conversion_2, new_states = create_conversion(automata_1.transitions, automata_2.transitions, tr_len, False)
     tr1_converted = convert_transitions(automata_1.transitions, transition_conversion_1, automata_1.init_state)
     tr2_converted = convert_transitions(automata_2.transitions, transition_conversion_2, automata_2.init_state)
-    
+
     # Une ambas as transições
     new_transitions = to_transitions(tr1_converted, tr2_converted, new_states, new_ab)
-    
+
     # Transição por epsilon dos estados finais de dfa1 para o estado inicial de dfa2
     init_2 = transition_conversion_2[automata_2.init_state]
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, init_2)
-    
+
     new_init = transition_conversion_1[automata_1.init_state]
     new_final = []
     for x in automata_2.final_states:
         new_final.append(transition_conversion_2[x])
-    
+
     return NFA(new_states, new_ab, new_init, new_final, new_transitions, True)
-    
+
 
 def convert_transitions(transitions, transition_conversion, init_state):
     alphabet = list(transitions[init_state].keys())
@@ -472,9 +449,9 @@ def convert_transitions(transitions, transition_conversion, init_state):
                         internal_tr[letter] = transition_conversion[aux_2]
             else:
                 if aux != '':
-                    internal_tr[letter] = transition_conversion[aux] 
+                    internal_tr[letter] = transition_conversion[aux]
         tr_converted[k] = internal_tr
-    
+
     return tr_converted
 
 
@@ -483,7 +460,7 @@ def append_final_states(transitions, transition_conversion, final_states, state_
         print(x)
         transitions[transition_conversion[x]]['&'].append(state_to_append)
     return transitions
-        
+
 
 def create_conversion(transitions_1, transitions_2, tr_len, goal):
     # goal True = union, False = concatenation
@@ -493,7 +470,7 @@ def create_conversion(transitions_1, transitions_2, tr_len, goal):
     else:
         begin = 0
         end = tr_len
-    
+
     c = 0
     d = 0
     transition_conversion_1 = {}
@@ -511,7 +488,7 @@ def create_conversion(transitions_1, transitions_2, tr_len, goal):
             d += 1
     transition_conversion_1 = dict((v,k) for k, v in transition_conversion_1.items())
     transition_conversion_2 = dict((v,k) for k, v in transition_conversion_2.items())
-    
+
     return transition_conversion_1, transition_conversion_2, new_states
 
 

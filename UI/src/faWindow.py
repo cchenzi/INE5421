@@ -127,6 +127,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionStep.setObjectName("input_actionStep")
         self.input_actionMultipleRun = QtWidgets.QAction(self)
         self.input_actionMultipleRun.setObjectName("input_actionMultipleRun")
+        self.convert_actionMinimize = QtWidgets.QAction(self)
+        self.convert_actionMinimize.setObjectName("convert_actionMinimize")
         self.menuFile.addAction(self.file_actionNew)
         self.menuFile.addAction(self.file_actionOpen)
         self.menuFile.addAction(self.file_actionSave)
@@ -137,6 +139,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.menuInput.addAction(self.input_actionMultipleRun)
         self.menuConvert.addAction(self.convert_actionToDFA)
         self.menuConvert.addAction(self.convert_actionToGramm)
+        self.menuConvert.addAction(self.convert_actionMinimize)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuInput.menuAction())
         self.menubar.addAction(self.menuConvert.menuAction())
@@ -167,6 +170,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionFastRun.setText(_translate("FAWindow", "Fast Run"))
         self.input_actionStep.setText(_translate("FAWindow", "Step by State..."))
         self.input_actionMultipleRun.setText(_translate("FAWindow", "Multiple Run"))
+        self.convert_actionMinimize.setText(_translate("FAWindow", "Minimize DFA"))
 
 
     ######################## GENERAL WINDOW MANIPULATION FUNCTIONS ###########################
@@ -181,6 +185,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.file_actionClose.triggered.connect(self.closeEditor)
         self.convert_actionToDFA.triggered.connect(self.convertToDFA)
         self.convert_actionToGramm.triggered.connect(self.convertToGrammar)
+        self.convert_actionMinimize.triggered.connect(self.minimizeDFA)
         self.input_actionFastRun.triggered.connect(self.createFastRunDialog)
         self.input_actionStep.triggered
         self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
@@ -559,6 +564,27 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         else:
             newGramm = self.FA.to_grammar()
             self.parent.createGrammarWindow(newGramm)
+
+
+    # minimize DFA
+    def minimizeDFA(self):
+        if not self.opened:
+            self.createErrorDialog("You don't have an automaton opened to be minimized!!")
+            return
+
+        if not self.faUpdated:
+            self.getFA()
+
+        if isinstance(self.FA, NFA):
+            self.createErrorDialog("You are trying to minimize a NFA. An intermediary DFA was generated to permit this minimization. Please, run this minimization over this new automaton.")
+            newFA = self.FA.determinize()
+            self.parent.createFAWindow(newFA)
+        else:
+            newFA = self.FA.minimize()
+            if newFA:
+                self.parent.createFAWindow(newFA)
+            else:
+                self.createErrorDialog("Your DFA doesn't have a valid initial state!! (Dead state)")
 
 
     ####################################################################################

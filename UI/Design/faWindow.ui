@@ -192,6 +192,7 @@
     </property>
     <addaction name="convert_actionToDFA"/>
     <addaction name="convert_actionToGramm"/>
+    <addaction name="convert_actionMinimize"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuInput"/>
@@ -245,6 +246,11 @@
   <action name="input_actionMultipleRun">
    <property name="text">
     <string>Multiple Run</string>
+   </property>
+  </action>
+  <action name="convert_actionMinimize">
+   <property name="text">
+    <string>Minimize DFA</string>
    </property>
   </action>
  </widget>
