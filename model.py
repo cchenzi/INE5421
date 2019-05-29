@@ -211,7 +211,7 @@ class DFA:
                     alive_states.add(state)
 
         if self.init_state not in alive_states:
-            print("ERROR: init state is DEAD!")
+            self.init_state = ''
         dead_states = set(self.states).difference(alive_states)
         for dead_state in dead_states:
             self.transitions.pop(dead_state)
