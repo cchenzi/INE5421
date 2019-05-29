@@ -389,7 +389,7 @@ class RegularGrammar:
                         error = True
                         print(x)
                         break
-        return !error
+        return not error
 
 
 def union(automata_1, automata_2):
