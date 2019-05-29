@@ -218,15 +218,14 @@ class DFA:
         self.states = list(alive_states)
 
     def discard_unreachable(self):
-        reachable = set()
+        reachable = {self.init_state}
+        last_reachable = set()
 
-        def recursive_reachable(current_state):
-            for state in self.transitions[current_state].values():
-                if state not in reachable and state in self.states:
-                    reachable.add(state)
-                    recursive_reachable(state)
-
-        recursive_reachable(self.init_state)
+        while reachable != last_reachable:
+            last_reachable = reachable.copy()
+            for state in self.states:
+                if state in reachable:
+                    reachable.update(self.transitions[state].values())
 
         unreachable = set(self.states).difference(reachable)
         for state in unreachable:
