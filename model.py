@@ -366,6 +366,31 @@ class RegularGrammar:
             False,
         )
 
+    # Retorna true se for regular, falso caso contrário
+    def check_type(self):
+        error = False
+        for non, prods in self.productions.items():
+            for x in prods:
+                if len(x) > 2:
+                    error = True
+                    print(x)
+                    break
+                if len(x) > 1:
+                    if x[0] not in self.terminals:
+                        error = True
+                        print(x)
+                        break
+                    if x[1] not in self.nonterminals:
+                        error = True
+                        print(x)
+                        break
+                else:
+                    if x not in self.terminals:
+                        error = True
+                        print(x)
+                        break
+        return !error
+
 
 def union(automata_1, automata_2):
     # Quantidade de estados novos = velhos + inicial + final
