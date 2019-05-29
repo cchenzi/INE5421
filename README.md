@@ -29,26 +29,28 @@ Elaborar uma aplicação, com interface gráfica para facilitar a iteração, pa
     (✓) Conversão de AFND (com e sem ε) para AFD.
     (✓) Conversão de AFD para GR e de GR para AFND.
     (✓) Reconhecimento de sentenças em AF.
-    (e) Minimização de AFD.
-    (f) União e interseção de AFD.
-    (g) Conversão de ER para AFD (usando o algoritmo baseado em árvore sintática - LivroAho - seção 3.9).
-    (h) Leitura, gravação e edição de GLC.
+    (✓) Minimização de AFD.
+    (✓) União e interseção de AFD.
+    (X) Conversão de ER para AFD (usando o algoritmo baseado em árvore sintática - LivroAho - seção 3.9).
+    (✓) Leitura, gravação e edição de GLC.
     (i) Transformação de GLC para uma GLC na forma normal de Chomsky.
-    (j) Eliminação de recursão a esquerda(k) Fatoração(l) Reconhecimento de sentenças em AP (teorema GLC↔AP)
+    (j) Eliminação de recursão a esquerda
+    (k) Fatoração
+    (l) Reconhecimento de sentenças em AP (teorema GLC↔AP)
 
 ### Formato de Entrega
 
     Dia 02/05 - entrega da parte 1 - itens (a), (b), (c) e (d) da Definição do Trabalho
-    Dia 30/05 - entrega da parte 2 - itens (e), (f), (g) e (h) da Definição do Trabalho
+    Dia 30/05 - entrega da parte 2 - itens (e), (f), (X) e (h) da Definição do Trabalho
     Dia 20/06 - entrega da parte 3 - itens (i), (j), (k) e (l) da Definição do Trabalho
 
 
 ### Ferramentas utilizadas
-O presente trabalho foi realizado na linguagem Python ```versão 3.7```, utilizando, para a interface gráfica, a biblioteca Qt. É possível instalá-la utlizando o seguinte comando:
+O presente trabalho foi realizado na linguagem Python ```versão 3.7```, utilizando as seguintes bibliotecas, para intefarce gráfica e visualização dos autômatos, respectivamente, Qt e graphviz. É possível instalá-las utlizando os seguintes comandos:
 ```
 pip install PySide2
+pip install graphviz
 ```
-
 #### Para rodar o programa
 Rodar o arquivo ```main.py``` com o comando
 ```
