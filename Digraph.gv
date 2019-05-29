@@ -1,0 +1,10 @@
+// NFA
+digraph {
+	S -> A [label=a]
+	S -> C [label=b]
+	S -> B [label=b]
+	A -> S [label=a]
+	B -> C [label=b]
+	B -> B [label=b]
+	C [shape=doublecircle]
+}

@@ -1,0 +1,4 @@
+Para rodar os testes, basta abrir os exemplos apresentados(ou criar novos, pela própria ferramenta). Para isso, terá que voltar para a pasta "Testes/examples", conforme solicitado.
+Eles não apresentam nenhuma funcionalidade restritiva, como está presente na descrição do trabalho: "<testeifuncionalidade.ext".
+Estão definidos pelo seu tipo, por exemplo, "_NFA", "_GR", etc. Os demais seguem a descrição presente no README:"<L:lista_E:exercicio_T:letra>".
+

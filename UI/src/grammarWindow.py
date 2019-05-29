@@ -153,7 +153,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.file_actionSaveAs.triggered.connect(lambda: self.createFileDialog("saveAs"))
         self.file_actionClose.triggered.connect(self.checkClose)
         self.convert_actionRGToNFA.triggered.connect(self.regGrammToNFA)
-        self.test_actionTestType.triggered
+        self.test_actionTestType.triggered.connect(self.testGrammType)
 
         # editing_table cells_change connect
         self.editing_table.itemChanged.connect(self.handleCellChanges)
@@ -281,17 +281,24 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # AUXILIARY DIALOGS CREATION
     # creates a simple dialog to present a result for the user
     def createResultDialog(self, result):
-        self.fastRunDialog.entry_input.setText("")
         dialog = QtWidgets.QDialog()
-        dialog.resize(163, 116)
-        dialog.label = QtWidgets.QLabel(dialog)
-        dialog.label.setGeometry(QtCore.QRect(50, 30, 67, 17))
-        dialog.buttonBox = QtWidgets.QDialogButtonBox(dialog)
-        dialog.buttonBox.setGeometry(QtCore.QRect(40, 70, 81, 25))
-        dialog.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
-        dialog.buttonBox.accepted.connect(dialog.close)
+        layout = QtWidgets.QVBoxLayout()
+        dialog.resize(180, 120)
+        label = QtWidgets.QLabel(dialog)
+        label.setFixedWidth(120)
+        label.setGeometry(QtCore.QRect(50, 30, 67, 17))
+        buttonBox = QtWidgets.QDialogButtonBox(dialog)
+        buttonBox.setGeometry(QtCore.QRect(40, 70, 81, 25))
+        buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
+        buttonBox.accepted.connect(dialog.close)
         dialog.setWindowTitle("Result")
-        dialog.label.setText(result)
+        label.setText(result)
+        label.setWordWrap(True)
+        label.adjustSize()
+        layout.addWidget(label)
+        layout.addWidget(buttonBox)
+        dialog.adjustSize()
+        dialog.setLayout(layout)
         self.resultForm = dialog
         self.resultForm.show()
 
@@ -386,6 +393,18 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
     ####################################################################################
     # TEST ACTION HANDLER FUNCTIONS
+    # tests the grammar type and shows it for the user
+    def testGrammType(self):
+        nonterminals = self.get_nonTerminals()
+        productions = self.get_productions(nonterminals)
+        terminals = self.get_terminals(nonterminals, productions)
+
+        if checkGrammTypeRegular(productions, terminals, nonterminals):
+            self.createResultDialog("Regular")
+        # elif checkGrammTypeContextFree(productions, terminals, nonterminals):  # IMPLEMENT
+        #     self.createResultDialog("Context-Free")
+        else:
+            self.createResultDialog("Grammar type above Context-Free (Unknown)")
 
 
     ####################################################################################
@@ -484,7 +503,37 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         else:
             start_symbol = None
 
-
-        self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)
+        # if checkGrammTypeRegular(productions, terminals, nonterminals):
+        #     self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)
+        # else:
+        #     self.GRAMM = ContextFree()
+        self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)  # REMOVER QUANDO TIVER IMPLEMENTADO GRAMATICAS LIVRES DE CONTEXTO
         self.grammUpdated = True
         return self.GRAMM
+
+
+# GRAMMAR TYPE TESTS
+# Retorna true se for regular, falso caso contrário
+def checkGrammTypeRegular(productions, terminals, nonterminals):
+    error = False
+    for non, prods in productions.items():
+        for x in prods:
+            if len(x) > 2:
+                error = True
+                print(x)
+                break
+            if len(x) > 1:
+                if x[0] not in terminals:
+                    error = True
+                    print(x)
+                    break
+                if x[1] not in nonterminals:
+                    error = True
+                    print(x)
+                    break
+            else:
+                if x not in terminals:
+                    error = True
+                    print(x)
+                    break
+    return not error
