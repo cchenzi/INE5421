@@ -5,12 +5,11 @@
 #     "Joao Fellipe Uller"
 # Copyright 2019
 import copy
+from graphviz import Digraph
 
 
 class NFA:
-    def __init__(
-        self, states, alphabet, init_state, final_states, transitions, has_epsilon
-    ):
+    def __init__(self, states, alphabet, init_state, final_states, transitions, has_epsilon):
         self.states = states
         self.alphabet = alphabet
         self.final_states = final_states
@@ -34,7 +33,20 @@ class NFA:
     def is_word_input_valid(self, word_input):
         if not (self.determinized):
             self.determinized = self.determinize()
+        self.draw()
         return self.determinized.is_word_input_valid(word_input)
+
+    def draw(self):
+        automata = Digraph(comment='NFA')
+        for from_state in self.transitions:
+            for letter, states in self.transitions[from_state].items():
+                for to_state in states:
+                    if to_state != '':
+                        automata.edge(from_state, to_state, label=letter)
+        for x in self.final_states:
+            automata.node(x, shape='doublecircle')
+        # ???
+        automata.view()
 
     def compute_epsilon_closure(self):
         for k, tr in self.transitions.items():
@@ -166,6 +178,17 @@ class DFA:
             aux = self.transitions[self.current_state][symbol]
             self.current_state = self.dead_state if aux == "" else aux
         print("Current state after: ", self.current_state)
+
+    def draw(self):
+        automata = Digraph(comment='DFA')
+        for from_state in self.transitions:
+            for letter, to_state in self.transitions[from_state].items():
+                if to_state != '':
+                    automata.edge(from_state, to_state, label=letter)
+        for x in self.final_states:
+            automata.node(x, shape='doublecircle')
+        # ???
+        automata.view()
 
     def reset_init_state(self):
         self.current_state = self.init_state
@@ -314,9 +337,7 @@ class DFA:
 
 
 class RegularGrammar:
-    def __init__(
-        self, nonterminals, terminals, productions, start_symbol, accepted_symbol="X"
-    ):
+    def __init__(self, nonterminals, terminals, productions, start_symbol, accepted_symbol="X"):
         self.nonterminals = nonterminals
         self.terminals = terminals
         self.productions = productions
@@ -344,6 +365,147 @@ class RegularGrammar:
             nfaD,
             False,
         )
+
+
+def union(automata_1, automata_2):
+    # Quantidade de estados novos = velhos + inicial + final
+    tr_len = len(automata_1.transitions) + len(automata_2.transitions) + 2
+    
+    # Unindo alfabetos e adicionando epsilon
+    new_ab = automata_1.alphabet + automata_2.alphabet
+    if '&' not in new_ab:
+        new_ab.append('&')
+    new_ab = list(set(new_ab))
+    new_states = []
+    
+    # Criando e convertendo transições para os novos estados
+    transition_conversion_1, transition_conversion_2, new_states = create_conversion(automata_1.transitions, automata_2.transitions, tr_len, True)
+    tr1_converted = convert_transitions(automata_1.transitions, transition_conversion_1, automata_1.init_state)
+    tr2_converted = convert_transitions(automata_2.transitions, transition_conversion_2, automata_2.init_state)
+    
+    # Une ambas as transições
+    new_transitions = to_transitions(tr1_converted, tr2_converted, new_states, new_ab)
+    
+    # Adicionando inicial e final
+    new_states.append('q0')
+    new_states.append('qf')
+    
+    # Transição por epsilon de q0 para os respectivos estados iniciais
+    new_transitions['q0'] = dd_aux = {k: [] for k in new_ab}
+    new_transitions['q0']['&'].append(transition_conversion_1[automata_1.init_state])
+    new_transitions['q0']['&'].append(transition_conversion_2[automata_2.init_state])
+    
+    
+    
+    # Transição por epsilon dos estados finais para o estado final qf
+    new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, 'qf')
+    new_transitions = append_final_states(new_transitions, transition_conversion_2, automata_2.final_states, 'qf')
+    
+    return NFA(new_states, new_ab, ['q0'], ['qf'], new_transitions, True)
+
+
+def concatenation(automata_1, automata_2):
+    tr_len = len(automata_1.transitions) + len(automata_2.transitions)
+    
+    # Unindo alfabetos e adicionando epsilon
+    new_ab = automata_1.alphabet + automata_2.alphabet
+    if '&' not in new_ab:
+        new_ab.append('&')
+    new_ab = list(set(new_ab))
+    new_states = []
+    # Criando e convertendo transições para os novos estados
+    transition_conversion_1, transition_conversion_2, new_states = create_conversion(automata_1.transitions, automata_2.transitions, tr_len, False)
+    tr1_converted = convert_transitions(automata_1.transitions, transition_conversion_1, automata_1.init_state)
+    tr2_converted = convert_transitions(automata_2.transitions, transition_conversion_2, automata_2.init_state)
+    
+    # Une ambas as transições
+    new_transitions = to_transitions(tr1_converted, tr2_converted, new_states, new_ab)
+    
+    # Transição por epsilon dos estados finais de dfa1 para o estado inicial de dfa2
+    init_2 = transition_conversion_2[automata_2.init_state]
+    new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, init_2)
+    
+    new_init = transition_conversion_1[automata_1.init_state]
+    new_final = []
+    for x in automata_2.final_states:
+        new_final.append(transition_conversion_2[x])
+    
+    return NFA(new_states, new_ab, new_init, new_final, new_transitions, True)
+    
+
+def convert_transitions(transitions, transition_conversion, init_state):
+    alphabet = list(transitions[init_state].keys())
+    tr_converted = {k: {} for k in list(transitions.keys())}
+
+    for k, x in transitions.items():
+        internal_tr = {k: '' for k in alphabet}
+        for letter in alphabet:
+            aux = transitions[k][letter]
+            if type(aux) == list:
+                for aux_2 in aux:
+                    if aux_2 != '':
+                        internal_tr[letter] = transition_conversion[aux_2]
+            else:
+                if aux != '':
+                    internal_tr[letter] = transition_conversion[aux] 
+        tr_converted[k] = internal_tr
+    
+    return tr_converted
+
+
+def append_final_states(transitions, transition_conversion, final_states, state_to_append):
+    for x in final_states:
+        print(x)
+        transitions[transition_conversion[x]]['&'].append(state_to_append)
+    return transitions
+        
+
+def create_conversion(transitions_1, transitions_2, tr_len, goal):
+    # goal True = union, False = concatenation
+    if (goal):
+        begin = 1
+        end = tr_len - 1
+    else:
+        begin = 0
+        end = tr_len
+    
+    c = 0
+    d = 0
+    transition_conversion_1 = {}
+    transition_conversion_2 = {}
+    new_states = []
+
+    for x in range(begin, end):
+        state = 'q' + str(x)
+        new_states.append(state)
+        if (c < len(transitions_1)):
+            transition_conversion_1[state] = list(transitions_1.keys())[c]
+            c += 1
+        else:
+            transition_conversion_2[state] = list(transitions_2.keys())[d]
+            d += 1
+    transition_conversion_1 = dict((v,k) for k, v in transition_conversion_1.items())
+    transition_conversion_2 = dict((v,k) for k, v in transition_conversion_2.items())
+    
+    return transition_conversion_1, transition_conversion_2, new_states
+
+
+def to_transitions(tr1_converted, tr2_converted, new_states, new_ab):
+    all_trs = [tr1_converted, tr2_converted]
+    print('1: ', tr1_converted)
+    print('2: ', tr2_converted)
+    transitions = {k: {} for k in new_states}
+    count = 0
+    for tr_aux in all_trs:
+        for key, tr in tr_aux.items():
+            print(count)
+            dd_aux = {k: [] for k in new_ab}
+            for letter, state in tr.items():
+                if state != '':
+                    dd_aux[letter].append(state)
+            transitions[new_states[count]] = dd_aux
+            count += 1
+    return transitions
 
 
 def test_minimization_alives():
