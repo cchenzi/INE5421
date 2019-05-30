@@ -9,6 +9,7 @@ from graphviz import Digraph
 
 
 class NFA:
+    # constructor
     def __init__(self, states, alphabet, init_state, final_states, transitions, has_epsilon):
         self.states = states
         self.alphabet = alphabet
@@ -21,21 +22,30 @@ class NFA:
         self.determinized = None
         self.epsilon_closure = dict.fromkeys(transitions)
 
+
+    # makes a state transition based on current state and entry symbol
     def make_transition(self, symbol):
         print(f"Current state before: {self.current_state} | Symbol: {symbol}")
         aux = self.transitions[self.current_state][symbol]
         self.current_state = self.dead_state if aux == "" else aux
         print(f"Current state after: {self.current_state}")
 
+
+    # resets the automaton to it's initial state
     def reset_init_state(self):
         self.current_state = self.init_state
 
+
+    # evaluates if an input is accepted by the automaton
     def is_word_input_valid(self, word_input):
         if not (self.determinized):
             self.determinized = self.determinize()
         self.draw()
+
         return self.determinized.is_word_input_valid(word_input)
 
+
+    # draws an automaton
     def draw(self):
         automata = Digraph(comment='NFA')
         for from_state in self.transitions:
@@ -45,9 +55,11 @@ class NFA:
                         automata.edge(from_state, to_state, label=letter)
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
-        # ???
+
         automata.view()
 
+
+    # computes epsilon_closure of all states of the automaton
     def compute_epsilon_closure(self):
         for k, tr in self.transitions.items():
             if ("&" in tr) and (tr["&"] != []):
@@ -64,13 +76,15 @@ class NFA:
                                     and epsilon_states in self.states
                                 ):
                                     aux.append(epsilon_states)
-                # print(aux)
+
                 self.epsilon_closure[k] = sorted(list(set(aux)))
             elif k in self.states:
                 self.epsilon_closure[k] = [k]
             else:
                 self.epsilon_closure = []
 
+
+    # determinizes a NFA to a DFA
     def determinize(self):
         self.compute_epsilon_closure()
         print(f"\nepsilon closure: {self.epsilon_closure}")
@@ -119,8 +133,9 @@ class NFA:
                                     and not any(nt == set(sq) for sq in state_queue)
                                 ):
                                     state_queue.append(sorted(list(nt)))
-                                    # print(f'state_queue: {state_queue}')
+
             index += 1
+
 
         print(f"new_states: {new_states}")
         # update states and set final states
@@ -159,8 +174,10 @@ class NFA:
         print(f"\ntransitions: {new_tr}\n")
         return DFA(states, self.alphabet, "q0", sorted(list(final_states)), new_tr)
 
+#############################################################################################
 
 class DFA:
+    # constructor
     def __init__(self, states, alphabet, init_state, final_states, transitions):
         self.states = states
         self.alphabet = alphabet
@@ -170,6 +187,8 @@ class DFA:
         self.current_state = init_state
         self.dead_state = "qdead"
 
+
+    # makes a state transition based on current state and entry symbol
     def make_transition(self, symbol):
         print("Current state before: ", self.current_state, "| Symbol: ", symbol)
         if symbol not in list(self.transitions[self.init_state].keys()):
@@ -179,6 +198,7 @@ class DFA:
             self.current_state = self.dead_state if aux == "" else aux
         print("Current state after: ", self.current_state)
 
+
     def draw(self):
         automata = Digraph(comment='DFA')
         for from_state in self.transitions:
@@ -187,11 +207,13 @@ class DFA:
                     automata.edge(from_state, to_state, label=letter)
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
-        # ???
+
         automata.view()
+
 
     def reset_init_state(self):
         self.current_state = self.init_state
+
 
     def is_word_input_valid(self, word_input):
         self.reset_init_state()
@@ -203,6 +225,8 @@ class DFA:
         print("End state: ", self.current_state)
         return True if self.current_state in self.final_states else False
 
+
+    # returns an equivalent regular grammar to the automaton
     def to_grammar(self):
         productions = {k: {} for k in self.states}
         for k, x in self.transitions.items():
@@ -216,10 +240,16 @@ class DFA:
             list(self.transitions.keys()), self.alphabet, productions, self.init_state
         )
 
+
+    # returns the a minimized version of the automaton
     def minimize(self):
-        self.discard_unreachable()
-        self.discard_dead()
-        self.group_equivalent()
+        minimized = copy.deepcopy(self)
+        minimized.discard_unreachable()
+        minimized.discard_dead()
+        minimized.group_equivalent()
+
+        return minimized
+
 
     def discard_dead(self):
         last_alive_states = set()
@@ -241,6 +271,7 @@ class DFA:
             self.transitions.pop(dead_state)
         self.states = list(alive_states)
 
+
     def discard_unreachable(self):
         reachable = {self.init_state}
         last_reachable = set()
@@ -258,6 +289,7 @@ class DFA:
                 self.final_states.remove(state)
         self.states = list(reachable)
         print(f'reachable states: {reachable}')
+
 
     def group_equivalent(self):
         final_states = set(self.final_states)
@@ -333,8 +365,10 @@ class DFA:
             if state in self.final_states:
                 self.final_states.remove(state)
 
+############################################################################################
 
 class RegularGrammar:
+    # constructor
     def __init__(self, nonterminals, terminals, productions, start_symbol, accepted_symbol="X"):
         self.nonterminals = nonterminals
         self.terminals = terminals
@@ -342,6 +376,8 @@ class RegularGrammar:
         self.start_symbol = start_symbol
         self.accepted_symbol = accepted_symbol
 
+
+    # converts a regularGramm to a Non-Deterministic automaton
     def toNFA(self):
         nt = copy.deepcopy(self.nonterminals)
         nt.append(self.accepted_symbol)
@@ -364,7 +400,15 @@ class RegularGrammar:
             False,
         )
 
+#######################################################################################################
 
+class RegularExpression:
+    def __init__(self, description):
+        self.description = description
+
+########################################################################################################
+
+# returns the union of two finite automatons
 def union(automata_1, automata_2):
     # Quantidade de estados novos = velhos + inicial + final
     tr_len = len(automata_1.transitions) + len(automata_2.transitions) + 2
@@ -393,8 +437,6 @@ def union(automata_1, automata_2):
     new_transitions['q0']['&'].append(transition_conversion_1[automata_1.init_state])
     new_transitions['q0']['&'].append(transition_conversion_2[automata_2.init_state])
 
-
-
     # Transição por epsilon dos estados finais para o estado final qf
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, 'qf')
     new_transitions = append_final_states(new_transitions, transition_conversion_2, automata_2.final_states, 'qf')
@@ -402,6 +444,7 @@ def union(automata_1, automata_2):
     return NFA(new_states, new_ab, ['q0'], ['qf'], new_transitions, True)
 
 
+# returns the concatenation of two finite automatons
 def concatenation(automata_1, automata_2):
     tr_len = len(automata_1.transitions) + len(automata_2.transitions)
 
@@ -429,6 +472,7 @@ def concatenation(automata_1, automata_2):
         new_final.append(transition_conversion_2[x])
 
     return NFA(new_states, new_ab, new_init, new_final, new_transitions, True)
+
 
 
 def convert_transitions(transitions, transition_conversion, init_state):

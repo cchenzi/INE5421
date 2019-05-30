@@ -1,4 +1,4 @@
-from model import DFA, NFA
+from regularLang import DFA, NFA
 
 
 def test_minimization_alives():

@@ -13,7 +13,7 @@ from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
 from UI.src.multipleRunWindow import Ui_MRunWindow
 import fileManipulation
-from model import NFA, DFA
+from regularLang import NFA, DFA
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):
@@ -187,7 +187,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.convert_actionToGramm.triggered.connect(self.convertToGrammar)
         self.convert_actionMinimize.triggered.connect(self.minimizeDFA)
         self.input_actionFastRun.triggered.connect(self.createFastRunDialog)
-        self.input_actionStep.triggered
+        self.input_actionStep.triggered.connect(self.createStepByRunWindow)
         self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
         self.pushButton_removeTransition.clicked.connect(self.createRemoveTransitionDialog)
@@ -256,7 +256,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             for i in range(len(obj.states)):
                 for j in range(len(obj.alphabet)):
                     destination = obj.transitions[obj.states[i]][obj.alphabet[j]]
-                    if destination != "-":
+                    if destination != '' and destination != '-':
                         self.transition_table.cellWidget(i, j+3).setCurrentIndex(obj.states.index(destination) + 1)  # Fator de correcao do primeiro elemento do comboBox
 
         self.centralwidget.setEnabled(True)
@@ -329,7 +329,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You don't have states to create a transition!")
             return
 
-        if self.FA.epsilonEnabled:
+        if isinstance(self.FA, NFA) and self.FA.epsilonEnabled:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet + ['&'])
         else:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet)

@@ -1,10 +1,10 @@
-// NFA
+// DFA
 digraph {
-	S -> A [label=a]
-	S -> C [label=b]
-	S -> B [label=b]
-	A -> S [label=a]
-	B -> C [label=b]
-	B -> B [label=b]
-	C [shape=doublecircle]
+	q0 -> q4 [label=a]
+	q0 -> q3 [label=b]
+	q3 -> q3 [label=a]
+	q3 -> q3 [label=b]
+	q4 -> q3 [label=a]
+	q4 -> q3 [label=b]
+	q3 [shape=doublecircle]
 }

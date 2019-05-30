@@ -8,7 +8,7 @@
 # Copyright 2019
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from model import NFA, DFA
+from regularLang import NFA, DFA
 
 
 class Ui_NewFADialog(QtWidgets.QDialog):

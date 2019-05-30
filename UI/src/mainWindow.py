@@ -12,8 +12,7 @@ from UI.src.faWindow import Ui_FAWindow
 from UI.src.grammarWindow import Ui_GrammarWindow
 from UI.src.regexWindow import Ui_RegexWindow
 import fileManipulation
-from model import NFA, DFA, RegularGrammar
-from regularExpression import RegularExpression
+from regularLang import NFA, DFA, RegularGrammar, RegularExpression
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
