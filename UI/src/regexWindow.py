@@ -8,7 +8,7 @@
 # Copyright 2019
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from regularLang import RegularExpression
+from model import RegularExpression
 import fileManipulation
 
 

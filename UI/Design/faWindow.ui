@@ -66,14 +66,17 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>0</x>
        <y>10</y>
-       <width>51</width>
-       <height>17</height>
+       <width>111</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>States</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_insertState">
@@ -131,14 +134,17 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>0</x>
        <y>10</y>
-       <width>81</width>
-       <height>17</height>
+       <width>111</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>Transitions</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_insertTransition">
@@ -155,9 +161,52 @@
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="export_container" native="true">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>111</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Export</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="exportPNG_pushButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PNG</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>transMan_container</zorder>
    <zorder>statesMan_container</zorder>
    <zorder>transition_table</zorder>
+   <zorder>export_container</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

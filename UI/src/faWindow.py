@@ -12,8 +12,9 @@ from PySide2.QtWidgets import QTableWidgetItem
 from UI.src.newNFATransitionDialog import Ui_NFATransitionDialog
 from UI.src.newFADialog import Ui_NewFADialog
 from UI.src.multipleRunWindow import Ui_MRunWindow
+from UI.src.stepByRunWindow import Ui_StepByRunWindow
 import fileManipulation
-from regularLang import NFA, DFA
+from model import NFA, DFA
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):
@@ -74,7 +75,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.statesMan_container.setGeometry(QtCore.QRect(19, 50, 111, 121))
         self.statesMan_container.setObjectName("statesMan_container")
         self.label = QtWidgets.QLabel(self.statesMan_container)
-        self.label.setGeometry(QtCore.QRect(30, 10, 51, 17))
+        self.label.setGeometry(QtCore.QRect(0, 10, 111, 20))
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.pushButton_insertState = QtWidgets.QPushButton(self.statesMan_container)
         self.pushButton_insertState.setGeometry(QtCore.QRect(10, 40, 89, 25))
@@ -89,11 +91,23 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.pushButton_removeTransition.setGeometry(QtCore.QRect(10, 80, 89, 25))
         self.pushButton_removeTransition.setObjectName("pushButton_removeTransition")
         self.label_2 = QtWidgets.QLabel(self.transMan_container)
-        self.label_2.setGeometry(QtCore.QRect(20, 10, 81, 17))
+        self.label_2.setGeometry(QtCore.QRect(0, 10, 111, 20))
+        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
         self.pushButton_insertTransition = QtWidgets.QPushButton(self.transMan_container)
         self.pushButton_insertTransition.setGeometry(QtCore.QRect(10, 40, 89, 25))
         self.pushButton_insertTransition.setObjectName("pushButton_insertTransition")
+        self.export_container = QtWidgets.QWidget(self.centralwidget)
+        self.export_container.setEnabled(True)
+        self.export_container.setGeometry(QtCore.QRect(20, 340, 111, 81))
+        self.export_container.setObjectName("export_container")
+        self.label_4 = QtWidgets.QLabel(self.export_container)
+        self.label_4.setGeometry(QtCore.QRect(0, 10, 111, 20))
+        self.label_4.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_4.setObjectName("label_4")
+        self.exportPNG_pushButton = QtWidgets.QPushButton(self.export_container)
+        self.exportPNG_pushButton.setGeometry(QtCore.QRect(10, 40, 89, 25))
+        self.exportPNG_pushButton.setObjectName("exportPNG_pushButton")
         self.transMan_container.raise_()
         self.statesMan_container.raise_()
         self.setCentralWidget(self.centralwidget)
@@ -157,6 +171,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.pushButton_removeTransition.setText(_translate("FAWindow", "Remove"))
         self.label_2.setText(_translate("FAWindow", "Transitions"))
         self.pushButton_insertTransition.setText(_translate("FAWindow", "Insert"))
+        self.label_4.setText(_translate("FAWindow", "Export"))
+        self.exportPNG_pushButton.setText(_translate("FAWindow", "PNG"))
         self.menuFile.setTitle(_translate("FAWindow", "File"))
         self.menuInput.setTitle(_translate("FAWindow", "Input"))
         self.menuConvert.setTitle(_translate("FAWindow", "Convert"))
@@ -186,8 +202,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.convert_actionToDFA.triggered.connect(self.convertToDFA)
         self.convert_actionToGramm.triggered.connect(self.convertToGrammar)
         self.convert_actionMinimize.triggered.connect(self.minimizeDFA)
-        self.input_actionFastRun.triggered.connect(self.createFastRunDialog)
-        self.input_actionStep.triggered.connect(self.createStepByRunWindow)
+        self.input_actionFastRun.triggered.connect(lambda: self.createFastRunDialog("fast"))
+        self.input_actionStep.triggered.connect(lambda: self.createFastRunDialog("step"))
         self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
         self.pushButton_removeTransition.clicked.connect(self.createRemoveTransitionDialog)
@@ -282,6 +298,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
         if self.multipleRunWindow: self.multipleRunWindow.close()
         if self.fastRunDialog: self.fastRunDialog.close()
+        if self.stepByRunWindow: self.stepByRunWindow.close()
 
         self.parent.childWindows.remove(self)
         if not len(self.parent.childWindows):
@@ -376,9 +393,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
 
     # Creates fastRun_Dialog
-    def createFastRunDialog(self):
-        if not(self.opened):
-            self.createErrorDialog("You need a valid automaton to run inputs over!")
+    def createFastRunDialog(self, mode):
+        if not(self.prepareRun()):
             return
 
         dialog = QtWidgets.QDialog()
@@ -394,7 +410,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         dialog.label.setFont(font)
         dialog.entry_input = QtWidgets.QLineEdit(dialog)
         dialog.entry_input.setGeometry(QtCore.QRect(30, 50, 191, 25))
-        dialog.buttonBox.accepted.connect(self.fastRun)
+        if mode == "fast": dialog.buttonBox.accepted.connect(self.fastRun)
+        else: dialog.buttonBox.accepted.connect(self.createStepByRunWindow)
         dialog.buttonBox.rejected.connect(dialog.close)
         dialog.setWindowTitle("FastRun_Dialog")
         dialog.label.setText("Input")
@@ -706,18 +723,13 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # INPUT ACTION HANDLERS
     # Creates a dialog to execute a single fast run
     def fastRun(self):
-        if not(self.faUpdated):
-            self.getFA()
-
-        if self.FA.init_state != '':
+        if self.prepareRun():
             entry = self.fastRunDialog.entry_input.text()
             result = self.FA.is_word_input_valid(entry)
             if result: str = "Accepted"
             else: str = "Rejected"
             self.createResultDialog(str)
-        else:
-            self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
-            self.fastRunDialog.close()
+
 
     # creates a simple dialog to present the result for the user
     def createResultDialog(self, result):
@@ -737,21 +749,31 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
     # Creates a dialog to execute a single fast run
     def createMultipleRunWindow(self):
+        if self.prepareRun():
+            self.multipleRunWindow = Ui_MRunWindow(self)
+
+    # Creates a dialog to execute a single fast run
+    def createStepByRunWindow(self):
+        if self.prepareRun():
+            entry = self.fastRunDialog.entry_input.text()
+            self.fastRunDialog.close()
+            self.stepByRunWindow = Ui_StepByRunWindow(self, entry)
+
+
+    # prepare the application to run inputs and return false if there's some reason to not be able
+    def prepareRun(self):
         if not(self.opened):
             self.createErrorDialog("You need a valid automaton to run inputs over!")
-            return
+            return False
 
         if not(self.faUpdated):
             self.getFA()
 
         if self.FA.init_state == '':
             self.createErrorDialog("The automaton needs to have a valid initial state to run inputs")
-        else:
-            self.multipleRunWindow = Ui_MRunWindow(self)
+            return False
 
-    # Creates a dialog to execute a single fast run
-    def createStepByRunWindow(self):
-        print("Step by step run")
+        return True
 
 
     ####################################################################################

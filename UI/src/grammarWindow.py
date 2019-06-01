@@ -8,7 +8,7 @@
 # Copyright 2019
 
 from PySide2 import QtCore, QtWidgets
-from regularLang import RegularGrammar, NFA
+from model import RegularGrammar, NFA
 import fileManipulation
 
 

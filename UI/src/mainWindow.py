@@ -12,7 +12,7 @@ from UI.src.faWindow import Ui_FAWindow
 from UI.src.grammarWindow import Ui_GrammarWindow
 from UI.src.regexWindow import Ui_RegexWindow
 import fileManipulation
-from regularLang import NFA, DFA, RegularGrammar, RegularExpression
+from model import NFA, DFA, RegularGrammar, RegularExpression
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -102,8 +102,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_fa.clicked.connect(self.createFAWindow)
         self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
-        #self.pushButton_rg.clicked.connect(lambda state: self.createGrammarWindow("regular"))
-        #self.pushButton_fcg.clicked.connect(lambda state: self.createGrammarWindow("context-free"))
         self.pushButton_rg.clicked.connect(self.createGrammarWindow)
         self.pushButton_fcg.clicked.connect(self.createGrammarWindow)
         self.actionAbout.triggered.connect(self.showAbout)
