@@ -40,14 +40,13 @@ class NFA:
     def is_word_input_valid(self, word_input):
         if not (self.determinized):
             self.determinized = self.determinize()
-        self.draw()
 
         return self.determinized.is_word_input_valid(word_input)
 
 
     # draws an automaton
-    def draw(self):
-        automata = Digraph(comment='NFA')
+    def draw(self, filename):
+        automata = Digraph(comment='NFA', format='png')
         for from_state in self.transitions:
             for letter, states in self.transitions[from_state].items():
                 for to_state in states:
@@ -56,7 +55,7 @@ class NFA:
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
 
-        automata.view()
+        automata.view(filename=filename, cleanup='True')
 
 
     # computes epsilon_closure of all states of the automaton
@@ -199,8 +198,8 @@ class DFA:
         print("Current state after: ", self.current_state)
 
 
-    def draw(self):
-        automata = Digraph(comment='DFA')
+    def draw(self, filename):
+        automata = Digraph(comment='DFA', format='png')
         for from_state in self.transitions:
             for letter, to_state in self.transitions[from_state].items():
                 if to_state != '':
@@ -208,7 +207,7 @@ class DFA:
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
 
-        automata.view()
+        automata.view(filename=filename, cleanup='True')
 
 
     def reset_init_state(self):

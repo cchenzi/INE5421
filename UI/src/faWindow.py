@@ -15,6 +15,7 @@ from UI.src.multipleRunWindow import Ui_MRunWindow
 from UI.src.stepByRunWindow import Ui_StepByRunWindow
 import fileManipulation
 from model import NFA, DFA
+import re
 
 
 class Ui_FAWindow(QtWidgets.QMainWindow):
@@ -23,10 +24,13 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         super(Ui_FAWindow, self).__init__()
         self.parent = parent
         self.multipleRunWindow = None
+        self.stepByRunWindow = None
         self.fastRunDialog = None
         self.fileName = filename
         self.FA = fa
         self.saved = False  # just for initialization purposes
+        # ALTERAR
+        self.filenameRE = re.compile('([\w]|/)*\w')  # regular expression to evaluate filenames
 
         self.setupUi()
         self.connectSignals()
@@ -207,6 +211,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
         self.pushButton_removeTransition.clicked.connect(self.createRemoveTransitionDialog)
+        self.exportPNG_pushButton.clicked.connect(self.exportToPng)
 
 
     # initializes the editor based on the entry automaton
@@ -432,6 +437,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
 
     ####################################################################################
+    # LATERAL BUTTON HANDLERS
     # Insert a new state on the transition table
     def insertState(self, label):
         if label in self.get_faStates():
@@ -547,6 +553,21 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.dialog.close()
 
 
+    # exports the automaton to visualize it's transition diagram in PNG
+    def exportToPng(self):
+        if not self.faUpdated:
+            self.getFA()
+
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File","./", "PNG Files (*.png)")
+        if filename:
+            filename = self.filenameRE.match(filename).group()
+            if filename:
+                self.FA.draw(filename)
+            else:
+                self.createErrorDialog("Invalid filename!!!")
+                return
+
+
     ####################################################################################
     # CONVERT ACTION HANDLERS
     # convert to dfa
@@ -620,12 +641,18 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
                 self.createErrorDialog("You are not manipulating a file to save it.")
                 return
 
-            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File","./", "DAT Files (*.dat)")
-            if fileName:
-                if fileName[-4:] != ".dat":
-                    fileName += ".dat"
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File","./", "DAT Files (*.dat)")
 
-                self.createFAFile(fileName)
+            if filename:
+                filename = self.filenameRE.match(filename).group()
+                print(filename)
+                if filename:
+                    filename += ".dat"
+                    self.createFAFile(filename)
+                else:
+                    print("yay")
+                    self.createErrorDialog("Invalid filename!!!")
+                    return
 
         else:
             if self.opened and not(self.closeEditor()): return
