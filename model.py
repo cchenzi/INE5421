@@ -38,6 +38,7 @@ class NFA:
 
     # evaluates if an input is accepted by the automaton
     def is_word_input_valid(self, word_input):
+        print(self.transitions)
         if not (self.determinized):
             self.determinized = self.determinize()
 
@@ -216,6 +217,7 @@ class DFA:
 
     def is_word_input_valid(self, word_input):
         self.reset_init_state()
+        print(self.transitions)
         print("\nStarting to check if", word_input, "is valid...")
         for x in word_input:
             self.make_transition(x)
@@ -458,10 +460,8 @@ def concatenation(automata_1, automata_2):
     transition_conversion_1, transition_conversion_2, new_states = create_conversion(automata_1.transitions, automata_2.transitions, tr_len, False)
     tr1_converted = convert_transitions(automata_1.transitions, transition_conversion_1, automata_1.init_state)
     tr2_converted = convert_transitions(automata_2.transitions, transition_conversion_2, automata_2.init_state)
-
     # Une ambas as transições
     new_transitions = to_transitions(tr1_converted, tr2_converted, new_states, new_ab)
-
     # Transição por epsilon dos estados finais de dfa1 para o estado inicial de dfa2
     init_2 = transition_conversion_2[automata_2.init_state]
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, init_2)
@@ -483,15 +483,16 @@ def convert_transitions(transitions, transition_conversion, init_state):
         internal_tr = {k: '' for k in alphabet}
         for letter in alphabet:
             aux = transitions[k][letter]
-            if type(aux) == list:
+            if type(aux) == set:
+                aux_set = []
                 for aux_2 in aux:
                     if aux_2 != '':
-                        internal_tr[letter] = transition_conversion[aux_2]
+                        aux_set.append(transition_conversion[aux_2])
+                internal_tr[letter] = aux_set
             else:
                 if aux != '':
                     internal_tr[letter] = transition_conversion[aux]
         tr_converted[k] = internal_tr
-
     return tr_converted
 
 
@@ -529,13 +530,12 @@ def create_conversion(transitions_1, transitions_2, tr_len, goal):
     transition_conversion_1 = dict((v,k) for k, v in transition_conversion_1.items())
     transition_conversion_2 = dict((v,k) for k, v in transition_conversion_2.items())
 
+
     return transition_conversion_1, transition_conversion_2, new_states
 
 
 def to_transitions(tr1_converted, tr2_converted, new_states, new_ab):
     all_trs = [tr1_converted, tr2_converted]
-    print('1: ', tr1_converted)
-    print('2: ', tr2_converted)
     transitions = {k: {} for k in new_states}
     count = 0
     for tr_aux in all_trs:
@@ -543,8 +543,10 @@ def to_transitions(tr1_converted, tr2_converted, new_states, new_ab):
             print(count)
             dd_aux = {k: [] for k in new_ab}
             for letter, state in tr.items():
-                if state != '':
+                if type(state) == str and state != '':
                     dd_aux[letter].append(state)
+                else:
+                    dd_aux[letter] = state
             transitions[new_states[count]] = dd_aux
             count += 1
     return transitions
