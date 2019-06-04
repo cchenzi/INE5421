@@ -8,18 +8,22 @@
 # Copyright 2019
 
 from PySide2 import QtCore, QtWidgets
-from model import RegularGrammar, NFA
+from model import RegularGrammar
+from cfLang import ContextFreeGrammar
 import fileManipulation
+import re
 
 
 class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
     # Constructor
-    def __init__(self, parent, gramm = None, filename = None):
+    def __init__(self, parent, gramm = None, filename = None, type = None):
         super(Ui_GrammarWindow, self).__init__()
         self.parent = parent
         self.filename = filename
         self.GRAMM = gramm
+        self.type = type
+        self.filenameRE = re.compile('([\w]|/)*\w')  # regular expression to evaluate filenames
 
         self.setupUi()
         self.connectSignals()
@@ -29,6 +33,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.grammUpdated = True
         else:
             self.grammUpdated = False
+            self.lockActions()
 
         if gramm and not filename:
             self.saved = False
@@ -167,6 +172,18 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             productionMembers = gramm.productions[head]
             self.editing_table.item(i, 2).setText(self.printProductionMembers(productionMembers))
             i += 1
+
+        self.lockActions()
+
+
+    # enable the valid actions based on grammar type
+    def lockActions(self):
+        if self.type == "regular":
+            self.convert_actionRGToNFA.setEnabled(True)
+        else:
+            self.convert_actionRGToNFA.setEnabled(False)
+
+        self.test_actionTestType.setEnabled(False)
 
 
     # inserts a new row in editing table
@@ -318,17 +335,22 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewGramm(self):
-        self.parent.createGrammarWindow()
+        self.parent.createGrammarWindow(type=self.type)
 
     # creates a file dialog to open or save files
     def createFileDialog(self, mode):
         if mode == "saveAs":
-            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File","./", "DAT Files (*.dat)")
-            if fileName:
-                if fileName[-4:] != ".dat":
-                    fileName += ".dat"
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File","./", "DAT Files (*.dat)")
+            if filename:
+                filename = self.filenameRE.match(filename).group()
+                if filename:
+                    filename += ".dat"
 
-                self.createGrammFile(fileName)
+                    self.createGrammFile(filename)
+
+                else:
+                    self.createErrorDialog("Invalid filename!!!")
+                    return
 
         else:
             if not(self.cleanEditingTable()): return
@@ -340,8 +362,12 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # load
     def loadGramm(self, filename):
         obj = fileManipulation.read_file(filename)
-        if not(isinstance(obj, RegularGrammar)):
-            self.createErrorDialog("The selected file doesn't represent a Regular grammar!")
+        if isinstance(obj, RegularGrammar):
+            self.type = "regular"
+        elif isinstance(obj, ContextFreeGrammar):
+            self.type = "context-free"
+        else:
+            self.createErrorDialog("The selected file doesn't represent a grammar!")
             return
 
         self.populateEditor(obj)
@@ -503,11 +529,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         else:
             start_symbol = None
 
-        # if checkGrammTypeRegular(productions, terminals, nonterminals):
-        #     self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)
-        # else:
-        #     self.GRAMM = ContextFree()
-        self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)  # REMOVER QUANDO TIVER IMPLEMENTADO GRAMATICAS LIVRES DE CONTEXTO
+        if self.type == "regular":
+            self.GRAMM = RegularGrammar(nonterminals, terminals, productions, start_symbol)
+        else:
+            self.GRAMM = ContextFreeGrammar(nonterminals, terminals, productions, start_symbol)
         self.grammUpdated = True
         return self.GRAMM
 

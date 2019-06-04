@@ -13,6 +13,7 @@ from UI.src.grammarWindow import Ui_GrammarWindow
 from UI.src.regexWindow import Ui_RegexWindow
 import fileManipulation
 from model import NFA, DFA, RegularGrammar, RegularExpression
+from cfLang import ContextFreeGrammar
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -102,8 +103,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_fa.clicked.connect(self.createFAWindow)
         self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
-        self.pushButton_rg.clicked.connect(self.createGrammarWindow)
-        self.pushButton_fcg.clicked.connect(self.createGrammarWindow)
+        self.pushButton_rg.clicked.connect(lambda: self.createGrammarWindow(type='regular'))
+        self.pushButton_fcg.clicked.connect(lambda: self.createGrammarWindow(type='context-free'))
         self.actionAbout.triggered.connect(self.showAbout)
         self.actionLoad.triggered.connect(self.createFileDialog)
 
@@ -122,8 +123,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.childWindows.append(Ui_RegexWindow(self, regex, filename))
 
     # Creates a grammar manipulation window
-    def createGrammarWindow(self, gramm = None, filename = None):
-        self.childWindows.append(Ui_GrammarWindow(self, gramm, filename))
+    def createGrammarWindow(self, gramm = None, filename = None, type = None):
+        self.childWindows.append(Ui_GrammarWindow(self, gramm, filename, type))
 
     # Creates the AboutUs dialog window
     def showAbout(self):
@@ -143,9 +144,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.createFAWindow(obj, filename)
 
         elif isinstance(obj, RegularGrammar):
-            self.createGrammarWindow(obj, filename)
+            self.createGrammarWindow(obj, filename, type='regular')
 
-        # elif isinstance(obj, CFGrammar):
+        elif isinstance(obj, ContextFreeGrammar):
+            self.createGrammarWindow(obj, filename, type='context-free')
 
         elif isinstance(obj, RegularExpression):
             self.createREWindow(obj, filename)
