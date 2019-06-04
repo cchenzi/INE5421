@@ -14,7 +14,7 @@ from UI.src.newFADialog import Ui_NewFADialog
 from UI.src.multipleRunWindow import Ui_MRunWindow
 from UI.src.stepByRunWindow import Ui_StepByRunWindow
 import fileManipulation
-from model import NFA, DFA
+from model import NFA, DFA, union, concatenation
 import re
 
 
@@ -124,6 +124,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.menuInput.setObjectName("menuInput")
         self.menuConvert = QtWidgets.QMenu(self.menubar)
         self.menuConvert.setObjectName("menuConvert")
+        self.menuCombine = QtWidgets.QMenu(self.menubar)
+        self.menuCombine.setObjectName("menuCombine")
         self.setMenuBar(self.menubar)
         self.file_actionNew = QtWidgets.QAction(self)
         self.file_actionNew.setObjectName("file_actionNew")
@@ -147,6 +149,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionMultipleRun.setObjectName("input_actionMultipleRun")
         self.convert_actionMinimize = QtWidgets.QAction(self)
         self.convert_actionMinimize.setObjectName("convert_actionMinimize")
+        self.combine_actionUnion = QtWidgets.QAction(self)
+        self.combine_actionUnion.setObjectName("combine_actionUnion")
+        self.combine_actionConcat = QtWidgets.QAction(self)
+        self.combine_actionConcat.setObjectName("combine_actionConcat")
         self.menuFile.addAction(self.file_actionNew)
         self.menuFile.addAction(self.file_actionOpen)
         self.menuFile.addAction(self.file_actionSave)
@@ -158,9 +164,12 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.menuConvert.addAction(self.convert_actionToDFA)
         self.menuConvert.addAction(self.convert_actionToGramm)
         self.menuConvert.addAction(self.convert_actionMinimize)
+        self.menuCombine.addAction(self.combine_actionUnion)
+        self.menuCombine.addAction(self.combine_actionConcat)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuInput.menuAction())
         self.menubar.addAction(self.menuConvert.menuAction())
+        self.menubar.addAction(self.menuCombine.menuAction())
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -180,6 +189,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.menuFile.setTitle(_translate("FAWindow", "File"))
         self.menuInput.setTitle(_translate("FAWindow", "Input"))
         self.menuConvert.setTitle(_translate("FAWindow", "Convert"))
+        self.menuCombine.setTitle(_translate("FAWindow", "Combine"))
         self.file_actionNew.setText(_translate("FAWindow", "New"))
         self.file_actionOpen.setText(_translate("FAWindow", "Open"))
         self.file_actionSave.setText(_translate("FAWindow", "Save"))
@@ -191,6 +201,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionStep.setText(_translate("FAWindow", "Step by State..."))
         self.input_actionMultipleRun.setText(_translate("FAWindow", "Multiple Run"))
         self.convert_actionMinimize.setText(_translate("FAWindow", "Minimize DFA"))
+        self.combine_actionUnion.setText(_translate("FAWindow", "Union"))
+        self.combine_actionConcat.setText(_translate("FAWindow", "Concatenation"))
 
 
     ######################## GENERAL WINDOW MANIPULATION FUNCTIONS ###########################
@@ -209,6 +221,8 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         self.input_actionFastRun.triggered.connect(lambda: self.createFastRunDialog("fast"))
         self.input_actionStep.triggered.connect(lambda: self.createFastRunDialog("step"))
         self.input_actionMultipleRun.triggered.connect(self.createMultipleRunWindow)
+        self.combine_actionUnion.triggered.connect(self.generateUnion)
+        self.combine_actionConcat.triggered.connect(self.generateConcatenation)
         self.pushButton_insertTransition.clicked.connect(self.createInsertTransitionDialog)
         self.pushButton_removeTransition.clicked.connect(self.createRemoveTransitionDialog)
         self.exportPNG_pushButton.clicked.connect(self.exportToPng)
@@ -601,7 +615,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.parent.createFAWindow(newFA)
         else:
             newGramm = self.FA.to_grammar()
-            self.parent.createGrammarWindow(newGramm)
+            self.parent.createGrammarWindow(gramm=newGramm)
 
 
     # minimize DFA
@@ -626,6 +640,53 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
 
     ####################################################################################
+    # COMBINE ACTION HANDLERS
+    # generates a new automata based on the union of two existents (one opened and one saved)
+    def generateUnion(self):
+        if not self.opened:
+            self.createErrorDialog("You don't have an automaton opened to be combined!!")
+            return
+
+        if not self.faUpdated:
+            self.getFA()
+
+        # GET THE AUTOMATA 2 FILE
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File","./", "DAT Files (*.dat)")
+        if filename:
+            obj = fileManipulation.read_file(filename)
+            if not(isinstance(obj, DFA)) and not(isinstance(obj, NFA)):
+                self.createErrorDialog("The selected file doesn't represent a Finite Automaton!")
+                return
+            else:
+                self.parent.createFAWindow(union(self.FA, obj))
+        else:
+            return
+
+
+    # generates a new automata based on the concat of two existents (one opened and one saved)
+    def generateConcatenation(self):
+        if not self.opened:
+            self.createErrorDialog("You don't have an automaton opened to be combined!!")
+            return
+
+        if not self.faUpdated:
+            self.getFA()
+
+        # GET THE AUTOMATA 2 FILE
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File","./", "DAT Files (*.dat)")
+        if filename:
+            obj = fileManipulation.read_file(filename)
+            if not(isinstance(obj, DFA)) and not(isinstance(obj, NFA)):
+                self.createErrorDialog("The selected file doesn't represent a Finite Automaton!")
+                return
+            else:
+                self.parent.createFAWindow(concatenation(self.FA, obj))
+        else:
+            return
+
+
+
+    ####################################################################################
     # FILE ACTION HANDLER FUNCTIONS
     # new
     def createNewFA(self):
@@ -645,12 +706,10 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
 
             if filename:
                 filename = self.filenameRE.match(filename).group()
-                print(filename)
                 if filename:
                     filename += ".dat"
                     self.createFAFile(filename)
                 else:
-                    print("yay")
                     self.createErrorDialog("Invalid filename!!!")
                     return
 

@@ -50,7 +50,7 @@ class NFA:
         for from_state in self.transitions:
             for letter, states in self.transitions[from_state].items():
                 for to_state in states:
-                    if to_state != '':
+                    if to_state != '' and to_state != '-':
                         automata.edge(from_state, to_state, label=letter)
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
@@ -202,7 +202,7 @@ class DFA:
         automata = Digraph(comment='DFA', format='png')
         for from_state in self.transitions:
             for letter, to_state in self.transitions[from_state].items():
-                if to_state != '':
+                if to_state != '' and to_state != '-':
                     automata.edge(from_state, to_state, label=letter)
         for x in self.final_states:
             automata.node(x, shape='doublecircle')
@@ -432,7 +432,8 @@ def union(automata_1, automata_2):
     new_states.append('qf')
 
     # Transição por epsilon de q0 para os respectivos estados iniciais
-    new_transitions['q0'] = dd_aux = {k: [] for k in new_ab}
+    new_transitions['q0'] = {k: [] for k in new_ab}
+    new_transitions['qf'] = {k: [] for k in new_ab}
     new_transitions['q0']['&'].append(transition_conversion_1[automata_1.init_state])
     new_transitions['q0']['&'].append(transition_conversion_2[automata_2.init_state])
 
@@ -440,7 +441,7 @@ def union(automata_1, automata_2):
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, 'qf')
     new_transitions = append_final_states(new_transitions, transition_conversion_2, automata_2.final_states, 'qf')
 
-    return NFA(new_states, new_ab, ['q0'], ['qf'], new_transitions, True)
+    return NFA(new_states, new_ab, 'q0', ['qf'], new_transitions, True)
 
 
 # returns the concatenation of two finite automatons

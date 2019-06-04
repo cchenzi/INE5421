@@ -243,9 +243,17 @@
     <addaction name="convert_actionToGramm"/>
     <addaction name="convert_actionMinimize"/>
    </widget>
+   <widget class="QMenu" name="menuCombine">
+    <property name="title">
+     <string>Combine</string>
+    </property>
+    <addaction name="combine_actionUnion"/>
+    <addaction name="combine_actionConcat"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuInput"/>
    <addaction name="menuConvert"/>
+   <addaction name="menuCombine"/>
   </widget>
   <action name="file_actionNew">
    <property name="text">
@@ -300,6 +308,16 @@
   <action name="convert_actionMinimize">
    <property name="text">
     <string>Minimize DFA</string>
+   </property>
+  </action>
+  <action name="combine_actionUnion">
+   <property name="text">
+    <string>Union</string>
+   </property>
+  </action>
+  <action name="combine_actionConcat">
+   <property name="text">
+    <string>Concatenation</string>
    </property>
   </action>
  </widget>
