@@ -369,7 +369,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You don't have states to create a transition!")
             return
 
-        if isinstance(self.FA, NFA) and self.FA.epsilonEnabled:
+        if self.epsilonEnabled:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet + ['&'])
         else:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet)
