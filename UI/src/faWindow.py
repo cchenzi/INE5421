@@ -58,12 +58,13 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
     # QtDesigner auto generated code
     def setupUi(self):
         self.setObjectName("FAWindow")
+        self.setMinimumSize(640, 480)
         self.resize(640, 480)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setEnabled(False)
         self.transition_table = QtWidgets.QTableWidget(self.centralwidget)
-        self.transition_table.setGeometry(QtCore.QRect(150, 10, 481, 441))
+        self.transition_table.setGeometry(QtCore.QRect(150, 10, 480, 440))
         self.transition_table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.transition_table.setDragDropOverwriteMode(False)
         self.transition_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -295,6 +296,9 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
                         self.transition_table.cellWidget(i, j+3).setCurrentIndex(obj.states.index(destination) + 1)  # Fator de correcao do primeiro elemento do comboBox
 
         self.centralwidget.setEnabled(True)
+        self.transition_table.setFixedWidth(self.transition_table.verticalHeader().width() + self.transition_table.horizontalHeader().length() + self.transition_table.frameWidth()*2)
+        self.transition_table.setMinimumSize(480, 440)
+        self.setFixedWidth(self.transition_table.width() + 200)
     # end of createEditor
 
 
