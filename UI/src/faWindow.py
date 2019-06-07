@@ -259,7 +259,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
         for i in range(len(self.alphabet)):
             self.transition_table.insertColumn(i+3)
 
-        if self.epsilonEnabled and not "&" in self.alphabet:
+        if self.epsilonEnabled:
             self.transition_table.insertColumn(self.transition_table.columnCount())
             self.transition_table.setHorizontalHeaderLabels(["->", "*", "State"] + self.alphabet + ["&"])
         else:
@@ -369,7 +369,7 @@ class Ui_FAWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You don't have states to create a transition!")
             return
 
-        if self.epsilonEnabled and not "&" in self.alphabet:
+        if self.epsilonEnabled:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet + ['&'])
         else:
             self.newTransitionDialog = Ui_NFATransitionDialog(self.insertTransition, states, self.alphabet)
