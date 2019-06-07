@@ -281,7 +281,9 @@ class DFA:
             last_reachable = reachable.copy()
             for state in self.states:
                 if state in reachable:
-                    reachable.update(self.transitions[state].values())
+                    for val in self.transitions[state].values():
+                        if val in self.states:
+                            reachable.add(val)
 
         unreachable = set(self.states).difference(reachable)
         for state in unreachable:
@@ -443,6 +445,10 @@ def union(automata_1, automata_2):
     new_transitions = append_final_states(new_transitions, transition_conversion_1, automata_1.final_states, 'qf')
     new_transitions = append_final_states(new_transitions, transition_conversion_2, automata_2.final_states, 'qf')
 
+    new_ab = set(new_ab)
+    new_ab.discard('&')
+    new_ab = list(new_ab)
+
     return NFA(new_states, new_ab, 'q0', ['qf'], new_transitions, True)
 
 
@@ -471,8 +477,11 @@ def concatenation(automata_1, automata_2):
     for x in automata_2.final_states:
         new_final.append(transition_conversion_2[x])
 
-    return NFA(new_states, new_ab, new_init, new_final, new_transitions, True)
+    new_ab = set(new_ab)
+    new_ab.discard('&')
+    new_ab = list(new_ab)
 
+    return NFA(new_states, new_ab, new_init, new_final, new_transitions, True)
 
 
 def convert_transitions(transitions, transition_conversion, init_state):
