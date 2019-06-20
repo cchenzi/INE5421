@@ -251,6 +251,62 @@ def test_cfLang_ll_one_table():
     # table = cfg.ll_one_table()
 
 
+def test_unit_rules_removal():
+    cfg = ContextFreeGrammar(
+        ['S', 'L', 'K'], ['a', '(', ')'],
+        {
+            'S': ['(L)', 'a'],
+            'L': ['S'],
+            'K': ['&', 'SK']
+        },
+        'S'
+    )
+    productions = cfg.remove_unit_rules()
+    assert set(productions['S']) == {'(L)', 'a'}
+    assert set(productions['L']) == {'(L)', 'a'}
+    assert set(productions['K']) == {'&', 'SK'}
+
+
+def test_unreachable_rules_removal():
+    cfg = ContextFreeGrammar(
+        ['S', 'L', 'K'], ['a', '(', ')'],
+        {
+            'S': ['(L)', 'a'],
+            'L': ['S'],
+            'K': ['&', 'SK']
+        },
+        'S'
+    )
+    cfg.remove_unreachable_rules()
+    assert set(cfg.productions['S']) == {'(L)', 'a'}
+    assert 'S' in cfg.productions
+    assert 'S' in cfg.nonterminals
+    assert 'L' in cfg.productions
+    assert 'L' in cfg.nonterminals
+    assert 'K' not in cfg.productions
+    assert 'K' not in cfg.nonterminals
+
+
+def test_improductive_rules_removal():
+    cfg = ContextFreeGrammar(
+        ['S', 'L', 'K'], ['a', '(', ')'],
+        {
+            'S': ['(L)', 'a'],
+            'L': ['K'],
+            'K': ['&', 'LK']
+        },
+        'S'
+    )
+    cfg.remove_improductive_rules()
+    assert set(cfg.productions['S']) == {'(L)', 'a'}
+    assert 'S' in cfg.productions
+    assert 'S' in cfg.nonterminals
+    assert 'L' not in cfg.productions
+    assert 'L' not in cfg.nonterminals
+    assert 'K' not in cfg.productions
+    assert 'K' not in cfg.nonterminals
+
+
 if __name__ == "__main__":
     # test_minimization_alives()
     # print('----------------------')
@@ -260,4 +316,7 @@ if __name__ == "__main__":
     # test_minimization()
     test_cfLang_first_follow()
     test_cfLang_ll_one_table()
+    test_unit_rules_removal()
+    test_unreachable_rules_removal()
+    test_improductive_rules_removal()
     print('YAY! Passed all tests!')

@@ -149,6 +149,59 @@ class ContextFreeGrammar:
                         table[non_terminal][c] = production
         return table
 
+    def remove_unit_rules(self):
+        productions = copy.deepcopy(self.productions)
+
+        for non_terminal in self.nonterminals:
+            for production in self.productions[non_terminal]:
+
+                if production in self.nonterminals:
+                    productions[non_terminal].remove(production)
+
+                    for prod in self.productions[production]:
+                        if prod not in productions[non_terminal]:
+                            productions[non_terminal].append(prod)
+        return productions
+
+    def remove_unreachable_rules(self):
+        reachable = {self.start_symbol}
+        last_reachable = set()
+
+        while reachable != last_reachable:
+            last_reachable = reachable.copy()
+            for non_terminal in self.nonterminals:
+                if non_terminal in reachable:
+                    for production in self.productions[non_terminal]:
+
+                        for symbol in production:
+                            if symbol in self.nonterminals:
+                                reachable.add(symbol)
+
+        unreachable = set(self.nonterminals).difference(reachable)
+        for nonterminal in unreachable:
+            self.productions.pop(nonterminal)
+        self.nonterminals = list(reachable)
+
+    def remove_improductive_rules(self):
+        last_productive = set(':3')
+        productive = set()
+
+        while last_productive != productive:
+            last_productive = productive.copy()
+            for non_terminal in self.nonterminals:
+                for production in self.productions[non_terminal]:
+                    for symbol in production:
+                        if symbol in self.terminals or symbol in productive:
+                            productive.add(non_terminal)
+
+        if self.start_symbol not in productive:
+            raise Exception("ERROR: start symbol is DEAD!")
+            self.init_state = ''
+        dead_states = set(self.nonterminals).difference(productive)
+        for dead_state in dead_states:
+            self.productions.pop(dead_state)
+        self.nonterminals = list(productive)
+
     # SENTENCE RECOGNITION FUNCTIONS
     # evaluates if a sentence is recognized or not by the grammar simulating a pushdown automaton (GLC cannot have left recursion)
     def pa_sentence_recognition(self, sentence):
