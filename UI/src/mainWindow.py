@@ -30,11 +30,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     # QtDesigner auto generated code
     def setupUi(self):
         self.setObjectName("MainWindow")
-        self.resize(320, 246)
+        self.resize(320, 216)
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(70, 0, 181, 211))
+        self.groupBox.setGeometry(QtCore.QRect(70, 0, 181, 171))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -56,9 +56,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_fa = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_fa.setGeometry(QtCore.QRect(0, 20, 181, 31))
         self.pushButton_fa.setObjectName("pushButton_fa")
-        self.pushButton_pa = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_pa.setGeometry(QtCore.QRect(0, 180, 181, 31))
-        self.pushButton_pa.setObjectName("pushButton_pa")
         self.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 320, 22))
@@ -89,7 +86,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_re.setText(_translate("MainWindow", "Regular Expression"))
         self.pushButton_rg.setText(_translate("MainWindow", "Regular Grammar"))
         self.pushButton_fa.setText(_translate("MainWindow", "Finite Automaton"))
-        self.pushButton_pa.setText(_translate("MainWindow", "Pushdown Automaton"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionLoad.setText(_translate("MainWindow", "Load"))
@@ -101,7 +97,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     # connect all actions to it's respective signals (ADDED)
     def connectSignals(self):
         self.pushButton_fa.clicked.connect(self.createFAWindow)
-        self.pushButton_pa.clicked.connect(self.createPAWindow)
         self.pushButton_re.clicked.connect(self.createREWindow)
         self.pushButton_rg.clicked.connect(lambda: self.createGrammarWindow(type='regular'))
         self.pushButton_fcg.clicked.connect(lambda: self.createGrammarWindow(type='context-free'))
@@ -113,10 +108,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     # Creates a Finite Automaton manipulation window
     def createFAWindow(self, fa = None, filename = None):
         self.childWindows.append(Ui_FAWindow(self, fa, filename))
-
-    # Creates a Pushdown Automaton manipulation window
-    def createPAWindow(self):
-        print("Pushdown Automaton")
 
     # Creates a Regular expression manipulation window
     def createREWindow(self, regex = None, filename = None):

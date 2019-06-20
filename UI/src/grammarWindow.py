@@ -54,7 +54,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.editing_table = QtWidgets.QTableWidget(self.centralwidget)
-        self.editing_table.setGeometry(QtCore.QRect(10, 50, 621, 401))
+        self.editing_table.setGeometry(QtCore.QRect(10, 20, 621, 431))
         self.editing_table.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
         self.editing_table.setTabKeyNavigation(False)
         self.editing_table.setDragDropOverwriteMode(False)
@@ -96,6 +96,8 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.menuTest.setObjectName("menuTest")
         self.menuConvert = QtWidgets.QMenu(self.menubar)
         self.menuConvert.setObjectName("menuConvert")
+        self.menuInput = QtWidgets.QMenu(self.menubar)
+        self.menuInput.setObjectName("menuInput")
         self.setMenuBar(self.menubar)
         self.file_actionNew = QtWidgets.QAction(self)
         self.file_actionNew.setObjectName("file_actionNew")
@@ -111,6 +113,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.convert_actionRGToNFA.setObjectName("convert_actionRGToNFA")
         self.test_actionTestType = QtWidgets.QAction(self)
         self.test_actionTestType.setObjectName("test_actionTestType")
+        self.input_actionSentence_Recogn = QtWidgets.QAction(self)
+        self.input_actionSentence_Recogn.setObjectName("input_actionSentence_Recogn")
+        self.input_actionBuild_LL1_PT = QtWidgets.QAction(self)
+        self.input_actionBuild_LL1_PT.setObjectName("input_actionBuild_LL1_PT")
         self.menuFile.addAction(self.file_actionNew)
         self.menuFile.addAction(self.file_actionOpen)
         self.menuFile.addAction(self.file_actionSave)
@@ -118,7 +124,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.menuFile.addAction(self.file_actionClose)
         self.menuTest.addAction(self.test_actionTestType)
         self.menuConvert.addAction(self.convert_actionRGToNFA)
+        self.menuInput.addAction(self.input_actionSentence_Recogn)
+        self.menuInput.addAction(self.input_actionBuild_LL1_PT)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuInput.menuAction())
         self.menubar.addAction(self.menuTest.menuAction())
         self.menubar.addAction(self.menuConvert.menuAction())
 
@@ -133,12 +142,11 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         item.setText(_translate("GrammarWindow", "LS"))
         item = self.editing_table.horizontalHeaderItem(2)
         item.setText(_translate("GrammarWindow", "RS"))
-        __sortingEnabled = self.editing_table.isSortingEnabled()
         self.editing_table.setSortingEnabled(False)
-        self.editing_table.setSortingEnabled(__sortingEnabled)
         self.menuFile.setTitle(_translate("GrammarWindow", "File"))
         self.menuTest.setTitle(_translate("GrammarWindow", "Test"))
         self.menuConvert.setTitle(_translate("GrammarWindow", "Convert"))
+        self.menuInput.setTitle(_translate("GrammarWindow", "Input"))
         self.file_actionNew.setText(_translate("GrammarWindow", "New"))
         self.file_actionOpen.setText(_translate("GrammarWindow", "Open"))
         self.file_actionSave.setText(_translate("GrammarWindow", "Save"))
@@ -146,6 +154,8 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.file_actionClose.setText(_translate("GrammarWindow", "Close"))
         self.convert_actionRGToNFA.setText(_translate("GrammarWindow", "Convert Regular Gram. to NFA"))
         self.test_actionTestType.setText(_translate("GrammarWindow", "Test Grammar Type"))
+        self.input_actionSentence_Recogn.setText(_translate("GrammarWindow", "Sentence Recognition"))
+        self.input_actionBuild_LL1_PT.setText(_translate("GrammarWindow", "Build LL(1) Parse Table"))
 
     ##############################################################################################
 
@@ -159,6 +169,8 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.file_actionClose.triggered.connect(self.checkClose)
         self.convert_actionRGToNFA.triggered.connect(self.regGrammToNFA)
         self.test_actionTestType.triggered.connect(self.testGrammType)
+        self.input_actionSentence_Recogn.triggered.connect(self.recognizeInput)
+        self.input_actionBuild_LL1_PT.triggered.connect(self.build_LL1_PT)
 
         # editing_table cells_change connect
         self.editing_table.itemChanged.connect(self.handleCellChanges)
@@ -435,6 +447,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
     ####################################################################################
     # CONVERT ACTION HANDLER FUNCTIONS
+    # converts a regular grammar to a finite automaton and creates a faWindow to show it
     def regGrammToNFA(self):
         if self.editing_table.rowCount() == 1:
             self.createErrorDialog("You don't have a grammar to be converted!!")
@@ -446,6 +459,18 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         # deveria testar se a gramatica eh regular ou nao
         newFA = self.GRAMM.toNFA()
         self.parent.createFAWindow(newFA)
+
+
+    #####################################################################################
+    # INPUT ACTION HANDLER FUNCTIONS
+    # return to the user if a given sentence is generated by the actual grammar using a PA simulation
+    def recognizeInput(self):
+        print("Recognize")
+
+
+    # build and show for the user the LL(1) parse table generated by the actual grammar
+    def build_LL1_PT(self):
+        print("Build parse table")
 
 
     ####################################################################################
