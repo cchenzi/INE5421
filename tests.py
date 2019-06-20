@@ -211,21 +211,44 @@ def test_cfLang_first_follow():
     assert set(cfg.follow['C']) == {'e', '$', ';'}
 
 
-def test_sentence_recognizing():
+def test_cfLang_ll_one_table():
     cfg = ContextFreeGrammar(
-        ['P', 'K', 'V', 'F', 'C'], ['b', 'c', 'e', 'f', 'v', 'm', ';'],
+        ['S', 'L', 'K'], ['a', '(', ')'],
         {
-            'P': ['KVC'],
-            'K': ['cK', '&'],
-            'V': ['vV', 'F'],
-            'F': ['fP;F', '&'],
-            'C': ['bVCe', 'm;C', '&']
+            'S': ['(L)', 'a'],
+            'L': ['SK'],
+            'K': ['&', 'SK']
         },
-        'P'
+        'S'
     )
 
-    assert cfg.pa_sentence_recognition("cvvm;") == True
-    assert cfg.pa_sentence_recognition("cvvm;u") == False
+    table = cfg.ll_one_table()
+    assert table == {
+        'S': {
+            '(': '(L)',
+            'a': 'a'
+        },
+        'L': {
+            '(': 'SK',
+            'a': 'SK'
+        },
+        'K': {
+            '(': 'SK',
+            ')': '&',
+            'a': 'SK'
+        }
+    }
+
+    # cfg = ContextFreeGrammar(
+    #     ['S', 'E', 'K'], ['a', 'i', 't', 'e', 'b'],
+    #     {
+    #         'S': ['iEtSK', 'a'],
+    #         'K': ['eS', '&'],
+    #         'E': ['b']
+    #     },
+    #     'S'
+    # )
+    # table = cfg.ll_one_table()
 
 
 if __name__ == "__main__":
@@ -235,5 +258,6 @@ if __name__ == "__main__":
     # print('----------------------')
     # test_group_equivalent()
     # test_minimization()
-    #test_cfLang_first_follow()
-    test_sentence_recognizing()
+    test_cfLang_first_follow()
+    test_cfLang_ll_one_table()
+    print('YAY! Passed all tests!')

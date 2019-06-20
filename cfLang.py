@@ -6,6 +6,7 @@
 # Copyright 2019
 import copy
 
+
 class ContextFreeGrammar:
     def __init__(self, nonterminals, terminals, productions, start_symbol):
         self.nonterminals = nonterminals
@@ -15,48 +16,23 @@ class ContextFreeGrammar:
         self.first = self.calc_firsts()
         self.follow = self.calc_follows()
 
-    def rec_first(self, symbol: str, ttl: int) -> set:
-        if ttl == 0:
-            print("WARNING (ContextFreeGrammar First): loop detected")
-            return set()
-        ttl -= 1
+    def production_first(self, production, pos, first):
+        p_first = {"&"}
 
-        if symbol in self.terminals or symbol == "&":
-            return set(symbol)
+        if production == "&":
+            return p_first
 
-        first = set()
-        if symbol in self.nonterminals:
-            for production in self.productions[symbol]:
-                for symb in production:
-                    s_first = self.rec_first(symb, ttl)
-                    first.update(s_first)
-                    if "&" not in s_first:
-                        break
-            return first
-        else:
-            raise Exception("ERROR (ContextFreeGrammar First): unexpected symbol")
+        while pos != len(production):
+            p_first.update(first[production[pos]])
+            if "&" not in first[production[pos]]:
+                p_first.discard("&")
+                break
+            pos += 1
+        return p_first
 
-    # If x is a terminal, then FIRST(x) = { ‘x’ }
-    # If x-> Є, is a production rule, then add Є to FIRST(x).
-    # If X->Y1 Y2 Y3….Yn is a production,
-    #     FIRST(X) = FIRST(Y1)
-    #     If FIRST(Y1) contains Є then FIRST(X) = { FIRST(Y1) – Є } U { FIRST(Y2) }
-    #     If FIRST (Yi) contains Є for all i = 1 to n, then add Є to FIRST(X).
-
-    # calculate all firsts from all symbols of the grammar
     def calc_firsts(self):
         first = {}
         last_first = {}
-
-        def production_first(production, pos, first):
-            p_first = {"&"}
-            while pos != len(production):
-                p_first.update(first[production[pos]])
-                if "&" not in first[production[pos]]:
-                    p_first.discard("&")
-                    break
-                pos += 1
-            return p_first
 
         for non_terminal in self.nonterminals:
             first[non_terminal] = set()
@@ -76,7 +52,7 @@ class ContextFreeGrammar:
 
             for non_terminal in self.nonterminals:
                 for production in self.productions[non_terminal]:
-                    if production == '&':
+                    if production == "&":
                         first[non_terminal].add(production)
                     else:
                         for pos, symbol in enumerate(production):
@@ -86,7 +62,7 @@ class ContextFreeGrammar:
                                 break
                             elif symbol in self.nonterminals:
                                 first[non_terminal].update(
-                                    production_first(production, pos, first)
+                                    self.production_first(production, pos, first)
                                 )
                             else:
                                 raise Exception(
@@ -102,18 +78,7 @@ class ContextFreeGrammar:
             first_list[symbol] = list(nt_first)
         return first_list
 
-    # calculates the follows of all symbols of the grammar
     def calc_follows(self):
-        def production_first(production, pos):
-            first = {"&"}
-            while pos != len(production):
-                first.update(self.first[production[pos]])
-                if "&" not in self.first[production[pos]]:
-                    first.discard("&")
-                    break
-                pos += 1
-            return first
-
         follow = {}
         last_follow = {}
 
@@ -141,10 +106,14 @@ class ContextFreeGrammar:
                                 follow[symbol].update(follow[non_terminal])
                             else:
                                 follow[symbol].update(
-                                    production_first(production, pos + 1)
+                                    self.production_first(
+                                        production, pos + 1, self.first
+                                    )
                                 )
                                 follow[symbol].discard("&")
-                                if "&" in production_first(production, pos + 1):
+                                if "&" in self.production_first(
+                                    production, pos + 1, self.first
+                                ):
                                     if symbol == "k":
                                         pass
                                     follow[symbol].update(follow[non_terminal])
@@ -155,6 +124,30 @@ class ContextFreeGrammar:
             follow_list[symbol] = list(nt_follow)
         return follow_list
 
+    def ll_one_table(self):
+        error_message = """
+                            ERROR (ContextFreeGrammar ll(1)):
+                            multiple entries on same cell
+                        """
+
+        table = {}
+        for non_terminal in self.nonterminals:
+            table[non_terminal] = {}
+
+        for non_terminal in self.nonterminals:
+            for production in self.productions[non_terminal]:
+                first_alpha = self.production_first(production, 0, self.first)
+                for b in first_alpha:
+                    if b != "&":
+                        if b in table[non_terminal]:
+                            raise Exception(error_message)
+                        table[non_terminal][b] = production
+                if "&" in first_alpha:
+                    for c in self.follow[non_terminal]:
+                        if c in table[non_terminal]:
+                            raise Exception(error_message)
+                        table[non_terminal][c] = production
+        return table
 
     # SENTENCE RECOGNITION FUNCTIONS
     # evaluates if a sentence is recognized or not by the grammar simulating a pushdown automaton (GLC cannot have left recursion)
