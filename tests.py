@@ -1,4 +1,5 @@
 from model import DFA, NFA
+from cfLang import ContextFreeGrammar
 
 
 def test_minimization_alives():
@@ -147,10 +148,74 @@ def test_determinization():
     a3.determinize()
 
 
+def test_cfLang_first_follow():
+
+    cfg = ContextFreeGrammar(
+        ['X', 'S', 'C'], ['c', 'd'],
+        {
+            'X': ['S'],
+            'S': ['CC'],
+            'C': ['cC', 'd']
+        },
+        'X'
+    )
+    assert set(cfg.first['X']) == {'c', 'd'}
+    assert set(cfg.first['S']) == {'c', 'd'}
+    assert set(cfg.first['C']) == {'c', 'd'}
+
+    assert set(cfg.follow['X']) == {'$'}
+    assert set(cfg.follow['S']) == {'$'}
+    assert set(cfg.follow['C']) == {'$', 'c', 'd'}
+
+    cfg = ContextFreeGrammar(
+        ['S', 'A', 'B', 'C'], ['a', 'b', 'c', 'd'],
+        {
+            'S': ['ABC'],
+            'A': ['aA', '&'],
+            'B': ['bB', 'ACd'],
+            'C': ['cC', 'd']
+        },
+        'S'
+    )
+    assert set(cfg.first['S']) == {'a', 'b', 'c', 'd'}
+    assert set(cfg.first['A']) == {'a', '&'}
+    assert set(cfg.first['B']) == {'a', 'b', 'c', 'd'}
+    assert set(cfg.first['C']) == {'c', 'd'}
+
+    assert set(cfg.follow['S']) == {'$'}
+    assert set(cfg.follow['A']) == {'a', 'b', 'c', 'd'}
+    assert set(cfg.follow['B']) == {'c', 'd'}
+    assert set(cfg.follow['C']) == {'$', 'd'}
+
+    cfg = ContextFreeGrammar(
+        ['P', 'K', 'V', 'F', 'C'], ['b', 'c', 'e', 'f', 'v', 'm', ';'],
+        {
+            'P': ['KVC'],
+            'K': ['cK', '&'],
+            'V': ['vV', 'F'],
+            'F': ['fP;F', '&'],
+            'C': ['bVCe', 'm;C', '&']
+        },
+        'P'
+    )
+    assert set(cfg.first['P']) == {'c', 'v', 'f', 'b', 'm', '&'}
+    assert set(cfg.first['K']) == {'c', '&'}
+    assert set(cfg.first['V']) == {'v', 'f', '&'}
+    assert set(cfg.first['F']) == {'f', '&'}
+    assert set(cfg.first['C']) == {'b', 'm', '&'}
+
+    assert set(cfg.follow['P']) == {'$', ';'}
+    assert set(cfg.follow['K']) == {'v', 'f', 'b', 'm', '$', ';'}
+    assert set(cfg.follow['V']) == {'b', 'm', '$', ';', 'e'}
+    assert set(cfg.follow['F']) == {'b', 'm', '$', ';', 'e'}
+    assert set(cfg.follow['C']) == {'e', '$', ';'}
+
+
 if __name__ == "__main__":
     # test_minimization_alives()
     # print('----------------------')
     # test_minimization_reachables()
     # print('----------------------')
     # test_group_equivalent()
-    test_minimization()
+    # test_minimization()
+    test_cfLang_first_follow()
