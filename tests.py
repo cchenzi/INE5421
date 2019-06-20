@@ -211,6 +211,23 @@ def test_cfLang_first_follow():
     assert set(cfg.follow['C']) == {'e', '$', ';'}
 
 
+def test_sentence_recognizing():
+    cfg = ContextFreeGrammar(
+        ['P', 'K', 'V', 'F', 'C'], ['b', 'c', 'e', 'f', 'v', 'm', ';'],
+        {
+            'P': ['KVC'],
+            'K': ['cK', '&'],
+            'V': ['vV', 'F'],
+            'F': ['fP;F', '&'],
+            'C': ['bVCe', 'm;C', '&']
+        },
+        'P'
+    )
+
+    assert cfg.pa_sentence_recognition("cvvm;") == True
+    assert cfg.pa_sentence_recognition("cvvm;u") == False
+
+
 if __name__ == "__main__":
     # test_minimization_alives()
     # print('----------------------')
@@ -218,4 +235,5 @@ if __name__ == "__main__":
     # print('----------------------')
     # test_group_equivalent()
     # test_minimization()
-    test_cfLang_first_follow()
+    #test_cfLang_first_follow()
+    test_sentence_recognizing()

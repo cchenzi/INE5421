@@ -43,6 +43,7 @@ class ContextFreeGrammar:
     #     If FIRST(Y1) contains Є then FIRST(X) = { FIRST(Y1) – Є } U { FIRST(Y2) }
     #     If FIRST (Yi) contains Є for all i = 1 to n, then add Є to FIRST(X).
 
+    # calculate all firsts from all symbols of the grammar
     def calc_firsts(self):
         first = {}
         last_first = {}
@@ -101,6 +102,7 @@ class ContextFreeGrammar:
             first_list[symbol] = list(nt_first)
         return first_list
 
+    # calculates the follows of all symbols of the grammar
     def calc_follows(self):
         def production_first(production, pos):
             first = {"&"}
@@ -152,3 +154,39 @@ class ContextFreeGrammar:
         for symbol, nt_follow in follow.items():
             follow_list[symbol] = list(nt_follow)
         return follow_list
+
+
+    # SENTENCE RECOGNITION FUNCTIONS
+    # evaluates if a sentence is recognized or not by the grammar simulating a pushdown automaton (GLC cannot have left recursion)
+    def pa_sentence_recognition(self, sentence):
+        sentence += "$"
+        sentence = list(sentence)
+        stack = []
+        stack.append('$')
+        stack.append(self.start_symbol)
+
+        return self.pa_make_transition(sentence, stack)
+
+
+    # makes a transition in the pushdown automaton
+    def pa_make_transition(self, sentence, stack):
+        while stack[-1] != '$' and stack[-1] == sentence[0]:
+            stack.pop()
+            sentence.pop(0)
+
+        if stack[-1] == '$' or not(stack[-1] in self.nonterminals):
+            if sentence[0] == stack[-1]: return True
+            else: return False
+
+        else:
+            symbol = stack.pop()
+            for production in self.productions[symbol]:
+                new_stack = copy.copy(stack)
+                sentence_aux = copy.copy(sentence)
+                if production != '&':
+                    for i in range(1, len(production)+1):
+                        new_stack.append(production[-i])
+
+                if self.pa_make_transition(sentence_aux, new_stack): return True
+
+            return False
