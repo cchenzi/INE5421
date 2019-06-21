@@ -61,9 +61,10 @@ class ContextFreeGrammar:
                                 first[non_terminal].add(symbol)
                                 break
                             elif symbol in self.nonterminals:
-                                first[non_terminal].update(
-                                    self.production_first(production, pos, first)
-                                )
+                                production_first = self.production_first(production, pos, first)
+                                first[non_terminal].update(production_first)
+                                if '&' not in production_first:
+                                    break
                             else:
                                 raise Exception(
                                     """

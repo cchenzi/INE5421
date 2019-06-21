@@ -210,6 +210,23 @@ def test_cfLang_first_follow():
     assert set(cfg.follow['F']) == {'b', 'm', '$', ';', 'e'}
     assert set(cfg.follow['C']) == {'e', '$', ';'}
 
+    cfg = ContextFreeGrammar(
+        ['S', 'L', 'R'], ['=', '*', 'd'],
+        {
+            'S': ['L=R', 'R'],
+            'L': ['*R', 'd'],
+            'R': ['L']
+        },
+        'S'
+    )
+    assert set(cfg.first['S']) == {'*', 'd'}
+    assert set(cfg.first['L']) == {'*', 'd'}
+    assert set(cfg.first['R']) == {'*', 'd'}
+
+    assert set(cfg.follow['S']) == {'$'}
+    assert set(cfg.follow['L']) == {'$', '='}
+    assert set(cfg.follow['R']) == {'$', '='}
+
 
 def test_cfLang_ll_one_table():
     cfg = ContextFreeGrammar(
