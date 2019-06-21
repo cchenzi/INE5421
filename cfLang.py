@@ -8,6 +8,7 @@ import copy
 
 
 class ContextFreeGrammar:
+    # constructor
     def __init__(self, nonterminals, terminals, productions, start_symbol):
         self.nonterminals = nonterminals
         self.terminals = terminals
@@ -15,6 +16,7 @@ class ContextFreeGrammar:
         self.start_symbol = start_symbol
         self.first = self.calc_firsts()
         self.follow = self.calc_follows()
+
 
     def production_first(self, production, pos, first):
         p_first = {"&"}
@@ -30,6 +32,8 @@ class ContextFreeGrammar:
             pos += 1
         return p_first
 
+
+    # calculates all symbols firsts of the grammar
     def calc_firsts(self):
         first = {}
         last_first = {}
@@ -78,6 +82,8 @@ class ContextFreeGrammar:
             first_list[symbol] = list(nt_first)
         return first_list
 
+
+    # calculates all symbols follows of the grammar
     def calc_follows(self):
         follow = {}
         last_follow = {}
@@ -124,6 +130,8 @@ class ContextFreeGrammar:
             follow_list[symbol] = list(nt_follow)
         return follow_list
 
+
+    # returns the LL(1) parse table of the grammar
     def ll_one_table(self):
         error_message = """
                             ERROR (ContextFreeGrammar ll(1)):
@@ -148,6 +156,7 @@ class ContextFreeGrammar:
                             raise Exception(error_message)
                         table[non_terminal][c] = production
         return table
+
 
     # SENTENCE RECOGNITION FUNCTIONS
     # evaluates if a sentence is recognized or not by the grammar simulating a pushdown automaton (GLC cannot have left recursion)
