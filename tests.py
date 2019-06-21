@@ -198,6 +198,7 @@ def test_cfLang_first_follow():
         },
         'P'
     )
+
     assert set(cfg.first['P']) == {'c', 'v', 'f', 'b', 'm', '&'}
     assert set(cfg.first['K']) == {'c', '&'}
     assert set(cfg.first['V']) == {'v', 'f', '&'}
