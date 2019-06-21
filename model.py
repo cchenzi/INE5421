@@ -265,13 +265,12 @@ class DFA:
                     alive_states.add(state)
 
         if self.init_state not in alive_states:
-            print("ERROR: init state is DEAD!")
+            raise Exception("ERROR: init state is DEAD!")
             self.init_state = ''
         dead_states = set(self.states).difference(alive_states)
         for dead_state in dead_states:
             self.transitions.pop(dead_state)
         self.states = list(alive_states)
-
 
     def discard_unreachable(self):
         reachable = {self.init_state}
@@ -291,7 +290,6 @@ class DFA:
             if state in self.final_states:
                 self.final_states.remove(state)
         self.states = list(reachable)
-        print(f'reachable states: {reachable}')
 
 
     def group_equivalent(self):
