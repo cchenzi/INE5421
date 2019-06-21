@@ -101,7 +101,7 @@ class Ui_StepByRunWindow(QtWidgets.QWidget):
     # QtDesigner auto generated code
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "Step by step run..."))
         self.label_2.setText(_translate("Form", "Current State:"))
         self.label_3.setText(_translate("Form", "Last state:"))
         self.label_4.setText(_translate("Form", "Last Symbol: "))

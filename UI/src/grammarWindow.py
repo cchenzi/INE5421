@@ -11,6 +11,7 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from model import RegularGrammar
 from cfLang import ContextFreeGrammar
 from UI.src.firstFollowWindow import Ui_FirFolWindow
+from UI.src.parsingTableWindow import Ui_ParsingTableWindow
 import fileManipulation
 import re
 
@@ -27,6 +28,7 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.filenameRE = re.compile('([\w]|/)*\w')  # regular expression to evaluate filenames
         self.runDialog = None
         self.firFolWindow = None
+        self.parsingTableWindow = None
 
         self.setupUi()
         self.connectSignals()
@@ -257,10 +259,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             event.ignore()
             return
 
-        if self.runDialog:
-            self.runDialog.close()
-        if self.firFolWindow:
-            self.firFolWindow.close()
+        if self.runDialog: self.runDialog.close()
+        if self.firFolWindow: self.firFolWindow.close()
+        if self.parsingTableWindow: self.parsingTableWindow.close()
 
         event.accept()
 
@@ -532,7 +533,13 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             gramm = self.GRAMM
 
         self.firFolWindow = Ui_FirFolWindow(self, gramm.calc_firsts(), gramm.calc_follows())
-        print("Build parse table")
+        try:
+            table = gramm.ll_one_table()
+        except:
+            self.createErrorDialog("This grammar is not LL(1)")
+            return
+
+        self.parsingTableWindow = Ui_ParsingTableWindow(self, table, gramm.terminals, gramm.nonterminals)
 
 
     ####################################################################################

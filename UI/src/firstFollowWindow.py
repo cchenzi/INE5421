@@ -62,7 +62,7 @@ class Ui_FirFolWindow(QtWidgets.QMainWindow):
     # QtDesigner auto generated code
     def retranslateUi(self, FirFolWindow):
         _translate = QtCore.QCoreApplication.translate
-        FirFolWindow.setWindowTitle(_translate("FirFolWindow", "MainWindow"))
+        FirFolWindow.setWindowTitle(_translate("FirFolWindow", "First & Follows"))
         item = self.ff_table.horizontalHeaderItem(1)
         item.setText(_translate("FirFolWindow", "FIRST"))
         item = self.ff_table.horizontalHeaderItem(2)
