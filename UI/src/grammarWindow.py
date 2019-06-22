@@ -122,6 +122,12 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.input_actionSentence_Recogn.setObjectName("input_actionSentence_Recogn")
         self.input_actionBuild_LL1_PT = QtWidgets.QAction(self)
         self.input_actionBuild_LL1_PT.setObjectName("input_actionBuild_LL1_PT")
+        self.convert_actionCNF = QtWidgets.QAction(self)
+        self.convert_actionCNF.setObjectName("convert_actionCNF")
+        self.convert_actionRecursionRem = QtWidgets.QAction(self)
+        self.convert_actionRecursionRem.setObjectName("convert_actionRecursionRem")
+        self.convert_actionFatoration = QtWidgets.QAction(self)
+        self.convert_actionFatoration.setObjectName("convert_actionFatoration")
         self.menuFile.addAction(self.file_actionNew)
         self.menuFile.addAction(self.file_actionOpen)
         self.menuFile.addAction(self.file_actionSave)
@@ -129,6 +135,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.menuFile.addAction(self.file_actionClose)
         self.menuTest.addAction(self.test_actionTestType)
         self.menuConvert.addAction(self.convert_actionRGToNFA)
+        self.menuConvert.addAction(self.convert_actionCNF)
+        self.menuConvert.addAction(self.convert_actionRecursionRem)
+        self.menuConvert.addAction(self.convert_actionFatoration)
         self.menuInput.addAction(self.input_actionSentence_Recogn)
         self.menuInput.addAction(self.input_actionBuild_LL1_PT)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -161,6 +170,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.test_actionTestType.setText(_translate("GrammarWindow", "Test Grammar Type"))
         self.input_actionSentence_Recogn.setText(_translate("GrammarWindow", "Sentence Recognition"))
         self.input_actionBuild_LL1_PT.setText(_translate("GrammarWindow", "Build LL(1) Parse Table"))
+        self.convert_actionCNF.setText(_translate("GrammarWindow", "CFG to Chomsky Normal Form"))
+        self.convert_actionRecursionRem.setText(_translate("GrammarWindow", "Left Recursion Removal"))
+        self.convert_actionFatoration.setText(_translate("GrammarWindow", "Left Fatoration"))
 
     ##############################################################################################
 
@@ -176,6 +188,9 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
         self.test_actionTestType.triggered.connect(self.testGrammType)
         self.input_actionSentence_Recogn.triggered.connect(self.createRunInputDialog)
         self.input_actionBuild_LL1_PT.triggered.connect(self.build_LL1_PT)
+        self.convert_actionCNF.triggered.connect(self.cnf_conversion)
+        self.convert_actionRecursionRem.triggered.connect(self.removeLeftRecursion)
+        self.convert_actionFatoration.triggered.connect(self.leftFatoration)
 
         # editing_table cells_change connect
         self.editing_table.itemChanged.connect(self.handleCellChanges)
@@ -487,29 +502,65 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
     # CONVERT ACTION HANDLER FUNCTIONS
     # converts a regular grammar to a finite automaton and creates a faWindow to show it
     def regGrammToNFA(self):
-        if self.editing_table.rowCount() == 1:
-            self.createErrorDialog("You don't have a grammar to be converted!!")
-            return
-
         if not self.grammUpdated:
             self.getGramm()
 
-        # deveria testar se a gramatica eh regular ou nao
+        if not self.GRAMM.start_symbol:
+            self.createErrorDialog("You don't have a grammar to be converted!!")
+            return
+
+        if not checkGrammTypeRegular(self.GRAMM.productions, self.GRAMM.terminals, self.GRAMM.nonterminals):
+            self.createErrorDialog("This grammar isn't regular to be converted into a finite automaton!")
+            return
+
         newFA = self.GRAMM.toNFA()
         self.parent.createFAWindow(newFA)
+
+
+    # converts a CF Grammar to it's Chomsky Normal Form
+    def cnf_conversion(self):
+        gramm = self.prepareManipulation()
+        if not gramm:
+            self.createErrorDialog("You need a valid grammar to run manipulations")
+            return
+
+        print("Convert to Chomsky Normal Form")  # ADD FUNCTION
+
+        self.parent.createGrammarWindow(gramm)
+
+
+    # remove left recursion from a context-free grammar
+    def removeLeftRecursion(self):
+        gramm = self.prepareManipulation()
+        if not gramm:
+            self.createErrorDialog("You need a valid grammar to run manipulations")
+            return
+
+        print("Remove left recursion")  # ADD FUNCTION
+
+        self.parent.createGrammarWindow(gramm)
+
+
+    # left-fatorate the context-free grammar
+    def leftFatoration(self):
+        gramm = self.prepareManipulation()
+        if not gramm:
+            self.createErrorDialog("You need a valid grammar to run manipulations")
+            return
+
+        print("Left fatorate")  # ADD FUNCTION
+
+        self.parent.createGrammarWindow(gramm)
 
 
     #####################################################################################
     # INPUT ACTION HANDLER FUNCTIONS
     # return to the user if a given sentence is generated by the actual grammar using a PA simulation
     def recognizeInput(self):
-        if not self.grammUpdated:
-            self.getGramm()
-
-        if isinstance(self.GRAMM, RegularGrammar):
-            gramm = ContextFreeGrammar(self.GRAMM.nonterminals, self.GRAMM.terminals, self.GRAMM.productions, self.GRAMM.start_symbol)
-        else:
-            gramm = self.GRAMM
+        gramm = self.prepareManipulation()
+        if not gramm:
+            self.createErrorDialog("You need a valid grammar to run inputs over")
+            return
 
         sentence = self.runDialog.entry_input.text()
         result = gramm.pa_sentence_recognition(sentence)
@@ -520,17 +571,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
 
     # build and show for the user the LL(1) parse table generated by the actual grammar
     def build_LL1_PT(self):
-        if not self.grammUpdated:
-            self.getGramm()
-
-        if not self.GRAMM.start_symbol:
+        gramm = self.prepareManipulation()
+        if not gramm:
             self.createErrorDialog("You need a valid grammar to build a parsing table")
             return
-
-        if isinstance(self.GRAMM, RegularGrammar):
-            gramm = ContextFreeGrammar(self.GRAMM.nonterminals, self.GRAMM.terminals, self.GRAMM.productions, self.GRAMM.start_symbol)
-        else:
-            gramm = self.GRAMM
 
         self.firFolWindow = Ui_FirFolWindow(self, gramm.calc_firsts(), gramm.calc_follows())
         try:
@@ -540,6 +584,22 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             return
 
         self.parsingTableWindow = Ui_ParsingTableWindow(self, table, gramm.terminals, gramm.nonterminals)
+
+
+    # returns a context-free grammar to be manipulated or None if it doesn't exists
+    def prepareManipulation(self):
+        if not self.grammUpdated:
+            self.getGramm()
+
+        if not self.GRAMM.start_symbol:
+            return None
+
+        if isinstance(self.GRAMM, RegularGrammar):
+            gramm = ContextFreeGrammar(self.GRAMM.nonterminals, self.GRAMM.terminals, self.GRAMM.productions, self.GRAMM.start_symbol)
+        else:
+            gramm = self.GRAMM
+
+        return gramm
 
 
     ####################################################################################

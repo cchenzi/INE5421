@@ -113,6 +113,9 @@
      <string>Convert</string>
     </property>
     <addaction name="convert_actionRGToNFA"/>
+    <addaction name="convert_actionCNF"/>
+    <addaction name="convert_actionRecursionRem"/>
+    <addaction name="convert_actionFatoration"/>
    </widget>
    <widget class="QMenu" name="menuInput">
     <property name="title">
@@ -169,6 +172,21 @@
   <action name="input_actionBuild_LL1_PT">
    <property name="text">
     <string>Build LL(1) Parse Table</string>
+   </property>
+  </action>
+  <action name="convert_actionCNF">
+   <property name="text">
+    <string>CFG to Chomsky Normal Form</string>
+   </property>
+  </action>
+  <action name="convert_actionRecursionRem">
+   <property name="text">
+    <string>Left Recursion Removal</string>
+   </property>
+  </action>
+  <action name="convert_actionFatoration">
+   <property name="text">
+    <string>Left Fatoration</string>
    </property>
   </action>
  </widget>
