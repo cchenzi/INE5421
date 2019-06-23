@@ -14,6 +14,7 @@ from UI.src.firstFollowWindow import Ui_FirFolWindow
 from UI.src.parsingTableWindow import Ui_ParsingTableWindow
 import fileManipulation
 import re
+import copy
 
 
 class Ui_GrammarWindow(QtWidgets.QMainWindow):
@@ -524,9 +525,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You need a valid grammar to run manipulations")
             return
 
-        print("Convert to Chomsky Normal Form")  # ADD FUNCTION
+        normalized_gramm = copy.deepcopy(gramm)
+        normalized_gramm.to_normal_form()
 
-        self.parent.createGrammarWindow(gramm)
+        self.parent.createGrammarWindow(normalized_gramm)
 
 
     # remove left recursion from a context-free grammar
@@ -536,9 +538,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You need a valid grammar to run manipulations")
             return
 
-        print("Remove left recursion")  # ADD FUNCTION
+        normalized_gramm = copy.deepcopy(gramm)
+        normalized_gramm.remove_left_recursion()
 
-        self.parent.createGrammarWindow(gramm)
+        self.parent.createGrammarWindow(normalized_gramm)
 
 
     # left-fatorate the context-free grammar
@@ -548,9 +551,10 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You need a valid grammar to run manipulations")
             return
 
-        print("Left fatorate")  # ADD FUNCTION
+        normalized_gramm = copy.deepcopy(gramm)
+        normalized_gramm.do_left_factoring()
 
-        self.parent.createGrammarWindow(gramm)
+        self.parent.createGrammarWindow(normalized_gramm)
 
 
     #####################################################################################

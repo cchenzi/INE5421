@@ -4,7 +4,9 @@
 #     "Francisco Luiz Vicenzi",
 #     "Joao Fellipe Uller"
 # Copyright 2019
+
 import copy
+import random
 
 
 class ContextFreeGrammar:
@@ -30,6 +32,7 @@ class ContextFreeGrammar:
                 break
             pos += 1
         return p_first
+
 
     # calculates all symbols firsts of the grammar
     def calc_firsts(self):
@@ -81,6 +84,7 @@ class ContextFreeGrammar:
             first_list[symbol] = list(nt_first)
         return first_list
 
+
     # calculates all symbols follows of the grammar
     def calc_follows(self):
         follow = {}
@@ -128,6 +132,7 @@ class ContextFreeGrammar:
             follow_list[symbol] = list(nt_follow)
         return follow_list
 
+
     # returns the LL(1) parse table of the grammar
     def ll_one_table(self):
         error_message = """
@@ -154,6 +159,8 @@ class ContextFreeGrammar:
                         table[non_terminal][c] = production
         return table
 
+
+    # removes unitary productions from the grammar
     def remove_unit_rules(self):
         productions = copy.deepcopy(self.productions)
 
@@ -168,6 +175,8 @@ class ContextFreeGrammar:
                             productions[non_terminal].append(prod)
         return productions
 
+
+    # remove dead productions from the grammar
     def remove_unreachable_rules(self):
         reachable = {self.start_symbol}
         last_reachable = set()
@@ -187,6 +196,8 @@ class ContextFreeGrammar:
             self.productions.pop(nonterminal)
         self.nonterminals = list(reachable)
 
+
+    # remove improductive production from the grammar
     def remove_improductive_rules(self):
         last_productive = set(':3')
         productive = set()
@@ -207,12 +218,12 @@ class ContextFreeGrammar:
             self.productions.pop(dead_state)
         self.nonterminals = list(productive)
 
-    # Chomsky Normal Form
 
+    # Chomsky Normal Form
     def create_terminals_transitions(self, letters):
         count = 0
         new_t = []
-        while (count != len(self.terminals)):        
+        while (count != len(self.terminals)):
             rd = random.randint(0,len(letters) - 1)
             random_letter = letters[rd]
             if (random_letter not in self.nonterminals):
@@ -221,15 +232,15 @@ class ContextFreeGrammar:
                 letters.remove(random_letter)
         terminals_transitions = dict(zip(self.terminals, new_t))
         real_transitions = dict(zip(new_t, self.terminals))
-        return terminals_transitions, real_transitions, letters        
- 
+        return terminals_transitions, real_transitions, letters
+
     def check_len_productions(self):
         for nt, prods in self.productions.items():
             for symbols in prods:
                 if(len(symbols) > 2):
                     return True
         return False
- 
+
     def change_terminal_productions(self, terminals_transitions):
         for nt, prods in self.productions.items():
             prod_aux = []
@@ -248,7 +259,7 @@ class ContextFreeGrammar:
                     prod_aux.append(symbols)
                 self.productions[nt] = prod_aux
         return self.productions
-    
+
     def check_epsilon_productions(self):
         productions_epsilon = []
         for nt, prods in self.productions.items():
@@ -257,7 +268,7 @@ class ContextFreeGrammar:
                     print(f'Epsilon found in {nt}!')
                     productions_epsilon.append(nt)
         return productions_epsilon
-    
+
     def remove_epsilon_productions(self):
         letters = [chr(x) for x in range(ord('A'), ord('A')+26)]
         epsilons = self.check_epsilon_productions()
@@ -275,7 +286,7 @@ class ContextFreeGrammar:
                                 aux.pop(y)
                                 aux = ''.join(aux)
                                 to_add.append(aux)
-                    for y in to_add: 
+                    for y in to_add:
                         print(nt, y)
                         if y == '':
                             self.productions[nt].append('&')
@@ -299,7 +310,8 @@ class ContextFreeGrammar:
             self.productions[rd] = [self.start_symbol, '&']
             self.start_symbol = rd
         print('Without epsilon: ', self.productions)
-    
+
+    # Main function that controls the process of chomsky normalization
     def to_normal_form(self):
         self.remove_improductive_rules()
         self.remove_unreachable_rules()
@@ -315,7 +327,7 @@ class ContextFreeGrammar:
         self.productions = {**self.productions, **real_transitions}
         print('Before change: ', self.productions)
         self.productions = self.change_terminal_productions(terminals_transitions)
- 
+
         print('Changed: ', self.productions)
         keep_processing = self.check_len_productions()
         while (keep_processing):
@@ -338,16 +350,16 @@ class ContextFreeGrammar:
                             new_productions[random_letter].append(aux)
             self.productions = {**self.productions, **new_productions}
             keep_processing = self.check_len_productions()
- 
+
         print('Final:', self.productions)
- 
+
     def get_new_nonterminal(self, letters):
         while True:
             rd = random.randint(0,len(letters) - 1)
             random_letter = letters[rd]
             if (random_letter not in self.nonterminals):
                 return random_letter
-            
+
     def check_indirect_recursion(self, nt):
         dd = {}
         for prod in self.productions[nt]:
@@ -362,7 +374,7 @@ class ContextFreeGrammar:
                             print(f'Indirect in {prod} with {y}! ({nt}, {prod[0]})')
         return dd
 
-    def remove_indirect_recursion(self, dd, nt):       
+    def remove_indirect_recursion(self, dd, nt):
         print('Indirect recursions: ', dd)
         for k, v in dd.items():
             new_prods = []
@@ -376,7 +388,7 @@ class ContextFreeGrammar:
                 self.productions[k].remove(x)
             for x in new_prods:
                 self.productions[k].append(x)
- 
+
     def check_left_recursion(self):
         to_remove = {}
         to_help = {}
@@ -392,7 +404,7 @@ class ContextFreeGrammar:
                 else:
                     to_help[nt].append(symbols)
         return aux, to_remove, to_help
-   
+
     def remove_left_recursion(self):
         checkage, to_remove, to_help = self.check_left_recursion()
         letters = [chr(x) for x in range(ord('A'), ord('A')+26)]
@@ -409,7 +421,7 @@ class ContextFreeGrammar:
                     print('For ', nt, ': ', prodsx)
                     for symbols in prodsx:
                         aux = symbols[1:]
-                        self.productions[nt].remove(symbols)                    
+                        self.productions[nt].remove(symbols)
                         for helper in to_help[nt]:
                             if helper in self.productions[nt]:
                                 self.productions[nt].remove(helper)
@@ -422,14 +434,14 @@ class ContextFreeGrammar:
                         if '&' not in self.productions[new_nt]:
                             self.productions[new_nt].append('&')
                     print(f'Productions before indirect checkage: {self.productions}')
-                
+
                 indirect_recursions = self.check_indirect_recursion(nt)
                 self.remove_indirect_recursion(indirect_recursions, nt)
                 checkage, to_remove, to_help = self.check_left_recursion()
-            count += 1                
+            count += 1
 
         print(self.productions)
-          
+
     def scan(self, s1, s2, dd, combination):
         len_aux = len(s2) if len(s1) > len(s2) else len(s1)
         total = ''
@@ -510,7 +522,7 @@ class ContextFreeGrammar:
                 to_left_factor.append(result[0])
         return to_left_factor
 
-    def do_left_factoring(self):    
+    def do_left_factoring(self):
         letters = [chr(x) for x in range(ord('A'), ord('A')+26)]
         to_left_factor = self.check_all_factoring(self.productions)
         while to_left_factor != []:
@@ -544,7 +556,7 @@ class ContextFreeGrammar:
                         self.productions[k] = x
                 to_left_factor.remove(key)
                 print(f'Now left {to_left_factor}...')
-                print(f'Prod now: {self.productions}!')            
+                print(f'Prod now: {self.productions}!')
             to_left_factor = self.check_all_factoring(self.productions)
             print(f'Updated: {to_left_factor}')
         print(self.productions)
