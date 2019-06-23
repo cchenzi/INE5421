@@ -33,10 +33,11 @@ Elaborar uma aplicação, com interface gráfica para facilitar a iteração, pa
     (✓) União e interseção de AFD.
     (X) Conversão de ER para AFD (usando o algoritmo baseado em árvore sintática - LivroAho - seção 3.9).
     (✓) Leitura, gravação e edição de GLC.
-    (i) Transformação de GLC para uma GLC na forma normal de Chomsky.
-    (j) Eliminação de recursão a esquerda
-    (k) Fatoração
-    (l) Reconhecimento de sentenças em AP (teorema GLC↔AP)
+    (✓) Transformação de GLC para uma GLC na forma normal de Chomsky.
+    (✓) Eliminação de recursão a esquerda
+    (✓) Fatoração
+    (✓) Reconhecimento de sentenças em AP (teorema GLC↔AP)
+    (✓) First e Follow
 
 ### Formato de Entrega
 
