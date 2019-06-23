@@ -4,8 +4,6 @@
 #vscode
 .vscode/
 
-# ignore .dat files
-*.dat
 
 #pycharm
 .idea/
