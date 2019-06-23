@@ -566,6 +566,8 @@ class Ui_GrammarWindow(QtWidgets.QMainWindow):
             self.createErrorDialog("You need a valid grammar to run inputs over")
             return
 
+        gramm.remove_left_recursion()
+
         sentence = self.runDialog.entry_input.text()
         result = gramm.pa_sentence_recognition(sentence)
         if result: str = "Accepted"
